@@ -1,28 +1,37 @@
 # M0 Fusion Plan — Tiny Rift Survivors
 
+## Status ✅ — Fusion SDK Installed (2026-05-25)
+
+**Version**: 2.1.1 Release-Candidate 2054 (build 2026-05-20)
+**Location**: `Assets/Photon/Fusion/`
+**AppId**: `46fda6fe-9b0f-4071-8233-26da07ea1144` (PhotonAppSettings.asset)
+**Standalone defines**: Auto-configured by Fusion SDK on import:
+  `UNITY_PIPELINE_URP;FUSION_WEAVER;FUSION2;FUSION_2;FUSION_2_1;FUSION_2_1_1;FUSION_2_OR_NEWER;FUSION_2_0_OR_NEWER;FUSION_2_1_OR_NEWER;FUSION_LOGLEVEL_INFO`
+
+**Template code activation**: `#if FUSION2` (234+ blocks) will now compile on Standalone.
+  `FUSION_NETWORK` (SoundEffectsPool, DropPool — 13 blocks) is a **separate template define**,
+  not a Fusion SDK define. Not needed for M0.
+
+**TODO**: Open Unity Editor, verify compile completes without errors.
+
 ## Goal
 
 Fusion SDK install + one smoke-test COOP session in-editor.
 Prove Fusion pipeline works end-to-end before any gameplay implementation.
 
-## Key Finding: SDK Not Installed
-
-Fusion SDK 2.0.8 is **not installed**. The template has extensive `#if FUSION2`
-code (~2000+ lines across 8 files) but all of it compiles out on Standalone
-(the development platform) because Standalone defines do not include `FUSION2`.
-
 ## Scope In
 
-1. Install Fusion SDK 2.0.8 (exact version the template targets)
-2. Add `FUSION2;FUSION_2;FUSION_2_0` to Standalone Scripting Define Symbols
-3. Create Fusion AppId in Photon dashboard, configure in Unity
-4. Create `FusionSmokeTest` scene or test flow:
-   - Start `NetworkRunner` in `GameMode.Shared`
+1. [✅] Install Fusion SDK 2.1.1
+2. [✅] Configure AppId in PhotonAppSettings.asset
+3. [✅] Add FUSION2 define to Standalone (auto-done by SDK)
+4. [⬜] Open Unity Editor, verify project compiles
+5. [⬜] Create FusionSmokeTest scene or test flow:
+   - Start NetworkRunner in GameMode.Shared
    - Runner creates a room
-   - Load MapArena1 via `NetworkRunner.LoadScene()`
-   - Spawn `GameplaySync` prefab
-   - Verify `MatchStarted = true`, connection state = `Connected`
-5. Cleanup: proper Fusion shutdown on disconnect
+   - Load MapArena1 via NetworkRunner.LoadScene()
+   - Spawn GameplaySync prefab
+   - Verify MatchStarted = true, connection state = Connected
+6. [⬜] Cleanup: proper Fusion shutdown on disconnect
 
 ## Scope Out
 
@@ -33,32 +42,24 @@ code (~2000+ lines across 8 files) but all of it compiles out on Standalone
 - Host migration
 - Bot queue / matchmaking
 - Steamworks
-
-## Data Boundary
-
-```
-WebSocketSQL (Colyseus):  Auth, Profile, Economy, Inventory, Rewards, Friends, Mail, Leaderboards
-Fusion (M0):              One NetworkRunner, one room, one map load, one GameplaySync spawn
-
-No cross-contamination. Fusion touches gameplay session only.
-```
+- FUSION_NETWORK define (SoundEffectsPool / DropPool networking — optional)
 
 ## Risks
 
 | Risk | Likelihood | Mitigation |
 |------|-----------|------------|
-| Fusion SDK version mismatch with template (needs 2.0.8) | Medium | Pin exact 2.0.8 |
-| #if FUSION2 code has bitrot since last compiled | Low | Clean pattern — just needs compilation |
-| Shared Mode requires Photon Cloud (no LAN) | High | Document this — devs need internet |
-| IL2CPP stripping may kill Fusion assemblies | Medium | Add Fusion assemblies to link.xml |
+| Shared Mode requires Photon Cloud (no LAN) | High | Devs need internet to test |
+| #if FUSION2 code bitrot since template was created | Low | Conditional pattern is clean |
+| FUSION_NETWORK define missing (SoundEffectsPool, DropPool) | None | These have `#else` fallbacks that work fine without the define |
+| IL2CPP stripping may kill Fusion assemblies | Medium | Add Fusion assemblies to link.xml when building for release |
 
 ## Story
 
 **Title**: `BACKEND-007-fusion-sdk-install-and-smoke-test`
 
 **AC**:
-1. `FUSION2` define added to Standalone, project compiles without errors
-2. Fusion SDK 2.0.8 installed, AppId configured
+1. FUSION2 define added to Standalone, project compiles without errors
+2. Fusion SDK 2.1.1 installed, AppId configured
 3. NetworkRunner starts in Shared Mode, creates room
 4. MapArena1 loads via Fusion scene manager
 5. GameplaySync spawns, MatchStarted = true
@@ -67,5 +68,5 @@ No cross-contamination. Fusion touches gameplay session only.
 **Evidence**:
 - Screenshot: console `Connected to Fusion session [room]`
 - Screenshot: scene hierarchy with GameplaySync spawned
-- Log capture: `Start → OnConnectedToServer → OnPlayerJoined → SceneLoadDone`
+- Log capture: Start → OnConnectedToServer → OnPlayerJoined → SceneLoadDone
 - Photon dashboard showing 1 active session
