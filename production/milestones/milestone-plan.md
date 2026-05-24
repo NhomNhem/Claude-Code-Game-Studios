@@ -1,95 +1,92 @@
 # Milestone Plan — Tiny Rift Survivors
 
-## Milestone 1: Foundation (Weeks 1-2)
-**Gate**: Concept → Systems Design
+## M0: Backend Foundation (Weeks 1-2)
+**Gate**: Concept → Backend Ready
 
 **Deliverables**:
-- [ ] Game concept document approved
-- [ ] Art bible approved
-- [ ] Playable prototype (movement + combat loop)
-- [ ] All MVP GDDs written and reviewed
-- [ ] Project architecture blueprint
-- [ ] 3+ ADRs for key technical decisions
-- [ ] Control manifest
+- [ ] `BackendSettings.asset` — online/offline/mock toggle
+- [ ] `BackendBootstrap.cs` — VContainer registration + startup sequence
+- [ ] `WebSocketSqlBackendService` configured and connected
+- [ ] `tiny-rift-server` repo created with Node.js + Colyseus
+- [ ] MySQL schema (users, profiles, currencies, leaderboards)
+- [ ] Server: login/register handler
+- [ ] Server: profile read/update handler
+- [ ] Server: server-authoritative currency handler
+- [ ] Unity ↔ WebSocket end-to-end flow: login → profile → currency
+- [ ] `FIREBASE` and `FUSION_*` defines removed from Player Settings
+- [ ] `Assets/_TinyRift/` directory structure created
+- [ ] Game concept document and GDDs for core systems
 
 **Exit Criteria**:
-- Prototype validates core loop fun
-- All GDDs pass design review
-- Architecture passes architecture review
+- Login → Profile → Currency round-trip works end-to-end
+- Offline fallback works (no server required)
+- No Firebase/Fusion code initialized at startup
 - Gate check passes
 
 ---
 
-## Milestone 2: Core Content (Weeks 3-6)
-**Gate**: Systems Design → Pre-Production
+## M1: Core Content (Weeks 3-6)
+**Gate**: Backend Ready → Content Complete
 
 **Deliverables**:
-- [ ] 3 signature skills implemented
-- [ ] Elemental synergy system implemented
-- [ ] 5 enemy types implemented
-- [ ] 3 weapon variants implemented
-- [ ] Wave progression system implemented
-- [ ] Skill upgrade paths implemented
+- [ ] 3 elemental skills implemented (fire, ice, lightning)
+- [ ] Elemental synergy system (freeze, chain, shatter)
+- [ ] 5 enemy types with distinct behaviors
+- [ ] Wave progression system
+- [ ] Skill upgrade paths
+- [ ] Damage numbers & basic VFX
+- [ ] HUD shows server-authoritative currency
 - [ ] UX specs for HUD and menus
 
 **Exit Criteria**:
 - All core systems unit tested
 - Playable run from start to wave 10
+- Currency displayed from server
 - No critical bugs
-- Vertical slice approved
 
 ---
 
-## Milestone 3: Progression (Weeks 7-8)
-**Gate**: Pre-Production → Production
+## M2: Progression (Weeks 7-8)
+**Gate**: Content Complete → Feature Complete
 
 **Deliverables**:
-- [ ] XP & level-up system
-- [ ] Persistent meta-progression
-- [ ] Save/Load system
+- [ ] Meta-progression system (between-run upgrades)
+- [ ] Persistent save/load synced to backend
 - [ ] In-run shop
-- [ ] Achievement system
+- [ ] Achievement system (Steam)
 - [ ] Menus (main, pause, game over, upgrades)
 
 **Exit Criteria**:
 - Full run loop: menu → play → die/win → meta-upgrade → replay
-- Data persists correctly across sessions
+- Progress persists across sessions (server-side)
 - All progression systems tested
 
 ---
 
-## Milestone 4: Early Access Release (Weeks 9-10)
-**Gate**: Production → Release
+## M3: Polish & Early Access (Weeks 9-10)
+**Gate**: Feature Complete → Ship
 
 **Deliverables**:
 - [ ] Balance tuning complete
 - [ ] Full VFX pass
 - [ ] SFX and music integration
 - [ ] UI polish complete
-- [ ] Performance meets target (60fps target)
+- [ ] Performance: 60fps on target spec
+- [ ] Product renamed from template defaults
 - [ ] Steam integration complete
 - [ ] QA pass — all critical bugs fixed
 
 **Exit Criteria**:
 - Smoke check passes
 - Release checklist complete
-- Build verified on target platform
+- Build verified on Steam
 - Go/no-go decision: GREEN
+- Early Access launch
 
 ---
 
-## Milestone 5: Full-Stack Lab (Weeks 11+)
-**Gate**: Lab Track Enablement
-
-**Deliverables**:
-- [ ] Firebase integrated
-- [ ] Fusion 2 multiplayer
-- [ ] IAP
-- [ ] Battle Pass
-- [ ] Leaderboards
-- [ ] Analytics
-
-**Exit Criteria**:
-- Lab Track build functional
-- Backend integration tested
-- Lab Track gate check passes
+## Future Milestones (Post-EA)
+- Firebase integration (deferred)
+- Fusion 2 multiplayer
+- IAP / Battle Pass
+- Platform expansions (console, mobile)

@@ -4,7 +4,7 @@
 
 A pixel-art bullet-heaven survivor-like where the player channels elemental rifts
 to unleash devastating skill combinations against waves of void-spawned enemies.
-Each run builds power through smart upgrades and synergies.
+Online from day one with server-authoritative economy via WebSocket + SQL backend.
 
 ## Current Project Identity
 
@@ -18,7 +18,7 @@ Each run builds power through smart upgrades and synergies.
 
 - Top-down 2D survivor-like (Vampire Survivors-like)
 - Bullet heaven (player is the bullet hell)
-- Roguelite with persistent upgrade progression
+- Roguelite with persistent online progression
 
 ## Core Pillars
 
@@ -26,20 +26,24 @@ Each run builds power through smart upgrades and synergies.
 2. **Power Fantasy** — From underpowered survivor to screen-clearing force
 3. **Snappy Runs** — 20–30 minute sessions, always something meaningful to choose
 
-## Development Approach
+## Backend Approach
 
-The BulletHell Elemental Template provides a **complete game framework** with ~250+ scripts.
-We are extending and configuring, not building from scratch. All template systems
-(movement, combat, skills, enemies, waves, save/load, pooling, localization, shop, inventory)
-are already implemented. Our work is content creation, configuration, and custom system addition.
+| Service | Role | Status |
+|---------|------|--------|
+| WebSocket + SQL | Primary production backend | M0 |
+| Offline | Dev/test/fallback | M0 |
+| Firebase | Deferred | Not planned |
+| Fusion 2 Multiplayer | Deferred | Future |
+| IAP / Battle Pass | Deferred | Future |
 
-## Two-Track System
+## Monetization
 
-| Area | Public Release | Full-Stack Lab |
-|------|---------------|----------------|
-| Gameplay | Core survivor loop (extend template) | Multiplayer co-op (already built in template) |
-| Progression | Local progression (extend PlayerSave) | Cloud sync (already built in template) |
-| Backend | None — strip from build | Firebase / WebSocket (already built in template) |
-| Monetization | Premium purchase only | IAP cosmetics (already built in template) |
-| Networking | None | Fusion 2 + Colyseus (already built in template) |
-| Build defines | `UNITY_PIPELINE_URP` | `UNITY_PIPELINE_URP;LAB_TRACK` |
+Premium purchase only. No IAP, no ads.
+Server-authoritative currency prevents local economy tampering.
+
+## Platform
+
+- **Primary**: PC (Steam)
+- **Engine**: Unity 6 (URP, 2D)
+- **Backend**: Node.js + Colyseus + MySQL
+- **Release**: Early Access → Full Release

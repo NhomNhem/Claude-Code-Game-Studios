@@ -16,43 +16,62 @@ When working on this project, agents follow the two-track system below.
 ## Development Tracks
 
 ### Track 1: Public Release (ACTIVE — PRIMARY)
-Stable, tested systems only. All backend services disabled.
-Custom code lives in `Assets/_TinyRift/`.
-**Current defines**: `UNITY_PIPELINE_URP` (remove `FIREBASE`/`FUSION2` from Player Settings)
+Online-enabled via WebSocket + SQL backend. Server-authoritative economy.
+- Backend: WebSocket + SQL (primary), Offline (dev/fallback)
+- Auth: WebSocket-based login, email/username + password
+- Multiplayer: None yet (deferred)
+- Monetization: Premium purchase only (no IAP)
+- No Firebase, no Fusion 2
+- Custom code in `Assets/_TinyRift/`
+- **Defines**: `UNITY_PIPELINE_URP;BACKEND_ONLINE` (remove `FIREBASE`/`FUSION2`)
 
-### Track 2: Full-Stack Lab (PLANNED — LOCKED)
-Experimental online systems. NOT enabled in any public build.
-Backend services behind `#if LAB_TRACK` conditional compilation.
+### Track 2: Future Extensions (PLANNED — LOCKED)
+Experimental systems, not in any public build yet.
+- Firebase (deferred, not part of primary path)
+- Fusion 2 multiplayer (future)
+- IAP / Battle Pass (future)
 
-**Critical: Template ALREADY has backend infrastructure built in:**
-- Firebase Auth + Firestore with full sync handlers (16 handlers)
-- WebSocket/SQL backend with full sync handlers (15 handlers)
-- Fusion 2 multiplayer (Addons/Multiplayer/)
-- Colyseus multiplayer SDK
-- Unity IAP + Battle Pass + Monetization
-- OfflineBackendService for local-only fallback
+## Critical: Template Already Has Backend Infrastructure
 
-**These must be DISABLED for Public Release builds**, not enabled later.
+The template ships with **all three backends built in** via `IBackendService`:
+- `WebSocketSqlBackendService` — **USE THIS** (primary production)
+- `OfflineBackendService` — **USE THIS** (dev/test/fallback)
+- `FirebaseBackendService` — DEFER (not part of primary path)
+
+We configure and extend existing services, not build from scratch.
+Remove `FIREBASE` define from Player Settings to prevent Firebase init.
 
 ## Agent Rules
 
 1. NEVER modify `Assets/BulletHellTemplate/` vendor code
 2. NEVER refactor template manager singletons
 3. NEVER modify existing scenes or prefabs
-4. NEVER enable backend services in Public Release builds
+4. NEVER enable Firebase or Fusion 2 in Public Release builds
 5. NEVER change Unity project settings without explicit approval
 6. Write ALL custom code to `Assets/_TinyRift/`
-7. Lab Track code goes in `Assets/_TinyRift/Lab/`
-8. Respect VContainer DI patterns already established by BackendLifetimeScope
+7. Future-extension code (Firebase, Fusion, IAP, BP) goes in `Assets/_TinyRift/Future/`
+8. Respect VContainer DI patterns established by BackendLifetimeScope
 9. Do NOT remove bundled third-party libraries — just don't initialize unused ones
 
-## Current Scripting Defines
+## Current Scripting Defines (Target)
 
-| Platform | Current | Public Release Target |
-|----------|---------|----------------------|
+| Platform | Current | Target |
+|----------|---------|--------|
 | Standalone | `UNITY_PIPELINE_URP;FIREBASE` | `UNITY_PIPELINE_URP` |
 | Android | `UNITY_PIPELINE_URP;FUSION_*` | `UNITY_PIPELINE_URP` |
 | WebGL | `UNITY_PIPELINE_URP;FUSION_*` | `UNITY_PIPELINE_URP` |
+
+Dev builds may add `BACKEND_ONLINE` or use Offline mode per BackendSettings.asset.
+
+## M0 Backend Priorities
+
+1. `BackendSettings.asset` (ScriptableObject — toggle online/offline/mock)
+2. `BackendBootstrap` (VContainer registration, startup init sequence)
+3. WebSocketSQL setup — configure `WebSocketSqlBackendService`
+4. Node.js/Colyseus server (GitHub: `tiny-rift-server`)
+5. MySQL schema (users, profiles, currency, leaderboards)
+6. Unity client → WebSocketSQL connection (login round-trip)
+7. Login → Profile → Currency end-to-end flow
 
 ## Session Workflow
 

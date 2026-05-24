@@ -4,3 +4,6 @@
 [submodule "Tiny-Rift-Survivors-Docs"]
 	path = Tiny-Rift-Survivors-Docs
 	url = git@github.com:NhomNhem/Tiny-Rift-Survivors-Docs.git
+[submodule "tiny-rift-survivors-game-backend"]
+	path = tiny-rift-survivors-game-backend
+	url = git@github.com:NhomNhem/tiny-rift-survivors-game-backend.git

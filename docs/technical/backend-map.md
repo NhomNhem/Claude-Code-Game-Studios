@@ -1,102 +1,174 @@
 # Backend Map — Tiny Rift Survivors
 
-## CRITICAL: Backend Is BUILT IN, Not Planned
+## Architecture Decision
 
-Unlike a typical project where backend services would be added later, the
-BulletHell Elemental Template already ships with a full backend layer:
+**WebSocket + SQL is the primary production backend from day one.**
+Offline mode is dev/test/fallback only.
+Firebase is deferred and not part of the primary path.
 
-- Firebase Auth + Firestore (12.2.0)
-- WebSocket/SQL backend with full sync handlers
-- Fusion 2 multiplayer (Addons/Multiplayer/)
-- Colyseus multiplayer SDK (bundled)
-- Unity IAP (Purchasing 4.14.2)
-- Battle Pass system
-- Ranking/leaderboard system
-- GM/admin panel
+## Backend Roles
 
-**The task is not "enable these later" — it's "disable these NOW for Public Release."**
+| Backend | Role | Status |
+|---------|------|--------|
+| WebSocket + SQL | Primary production backend | M0 |
+| Offline | Dev/test/fallback (local-only) | M0 (built in template) |
+| Firebase | Deferred — not part of primary path | Not planned |
 
-## Current Scripting Define Symbols
+## Template's Built-In Backend Layer
 
-| Platform | Symbols | Backend Status |
-|----------|---------|---------------|
-| Standalone | `UNITY_PIPELINE_URP;FIREBASE` | **Firebase active** — must strip for Release |
-| Android | `UNITY_PIPELINE_URP;FUSION_*` | **Fusion 2 active** — must strip for Release |
-| WebGL | `UNITY_PIPELINE_URP;FUSION_*` | **Fusion 2 active** — must strip for Release |
-
-## Public Release Track — Backend Removal Strategy
-
-### Step 1: Remove Define Symbols
-Remove backend defines from Public Release build config:
-```
-Public Release: UNITY_PIPELINE_URP (ONLY)
-Lab Track:     UNITY_PIPELINE_URP;LAB_TRACK
-```
-
-### Step 2: Asset Stripping
-Use Unity's Managed Stripping Level + Linker to strip unused backend code:
-- Already set to "Minimal" — increase to "Low" or "Medium"
-- Create a `link.xml` that explicitly keeps gameplay assemblies only
-
-### Step 3: Scene Management
-Current build includes 8 scenes — Public Release needs a subset:
-- Remove Login scene (no auth needed for offline game)
-- Remove PVPArena scenes (no multiplayer)
-- Keep: Home, MapArena1-4
-
-## Full-Stack Lab Track
-
-### Enablement Method
-```csharp
-// LAB_TRACK defined in Player Settings > Scripting Define Symbols
-// Controls whether backend services initialize
-#if LAB_TRACK
-    // Full backend initialization
-#endif
-```
-
-### Backend Architecture (Already Built in Template)
+The BulletHell Elemental Template already provides the full abstraction via
+`IBackendService` and `BackendLifetimeScope` (VContainer):
 
 ```
-BackendLifetimeScope (VContainer)
-  ├── IBackendService (interface)
-  │   ├── FirebaseBackendService     [FIREBASE define]
-  │   ├── WebSocketSqlBackendService [WEBSOCKET define]
-  │   └── OfflineBackendService      [Always available — local fallback]
+IBackendService (interface)
+├── WebSocketSqlBackendService   ← PRIMARY — configure for production
+├── OfflineBackendService        ← FALLBACK — dev/test, local persistence
+└── FirebaseBackendService       ← DEFERRED — do not initialize
+```
+
+All three are already implemented. We configure and extend, not rebuild.
+
+## M0 Deliverables
+
+### Unity Side (Assets/_TinyRift/)
+
+```
+Assets/_TinyRift/
+└── Scripts/
+    └── Backend/
+        ├── BackendSettings.asset          # ScriptableObject — toggle Online/Offline/Mock
+        ├── BackendBootstrap.cs            # VContainer registration + startup init
+        ├── WebSocketConfig.cs             # URL, port, reconnect settings
+        ├── LoginService.cs                # Login/register flow
+        ├── ProfileService.cs              # Player profile data
+        ├── CurrencyService.cs             # Server-authoritative currency
+        └── MessageHandler.cs              # Server message routing
+```
+
+#### BackendSettings.asset (ScriptableObject)
+```
+- backendMode: Online | Offline | Mock
+- serverUrl: "ws://localhost:8080"
+- reconnectAttempts: 5
+- autoReconnect: true
+- offlineFallbackOnDisconnect: true
+```
+
+#### BackendBootstrap
+```
+- Registered in VContainer at game startup
+- Reads BackendSettings.asset
+- Initializes the appropriate IBackendService implementation
+- For Online mode: starts WebSocket connection, authenticates
+- For Offline mode: uses OfflineBackendService (local PlayerSave)
+```
+
+### Server Side (tiny-rift-server — separate repo)
+
+```
+tiny-rift-server/
+├── package.json                 # Node.js project
+├── src/
+│   ├── index.ts                 # Entry point, Colyseus server
+│   ├── config.ts                # Server config
+│   ├── database/
+│   │   ├── connection.ts        # MySQL connection pool
+│   │   └── schema.sql           # DDL for all tables
+│   ├── handlers/
+│   │   ├── auth.ts              # Login/register handler
+│   │   ├── profile.ts           # Profile read/write
+│   │   └── currency.ts          # Server-authoritative currency ops
+│   └── middleware/
+│       └── auth.ts              # Token validation
+└── schema.sql                   # MySQL schema (canonical)
+```
+
+### MySQL Schema (MVP)
+
+```sql
+-- Users & Auth
+users (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(32) UNIQUE NOT NULL,
+  email VARCHAR(255) UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_login TIMESTAMP NULL
+)
+
+-- Player Profiles
+profiles (
+  id BIGINT UNSIGNED PRIMARY KEY,   -- FK → users.id
+  display_name VARCHAR(32) NOT NULL,
+  avatar_id INT DEFAULT 0,
+  total_play_time BIGINT DEFAULT 0,
+  games_played INT DEFAULT 0,
+  highest_wave INT DEFAULT 0,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+-- Server-Authoritative Currency
+currencies (
+  id BIGINT UNSIGNED PRIMARY KEY,   -- FK → users.id
+  gold BIGINT DEFAULT 0,
+  gems INT DEFAULT 0,
+  total_gold_earned BIGINT DEFAULT 0,
+  total_gem_earned INT DEFAULT 0,
+  version INT DEFAULT 1,            -- Optimistic concurrency
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+-- Leaderboards (future)
+leaderboard_entries (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT UNSIGNED NOT NULL,
+  wave INT NOT NULL,
+  score BIGINT NOT NULL,
+  character_used VARCHAR(32),
+  achieved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+```
+
+### End-to-End Flow (MVP)
+
+```
+Unity Startup
   │
-  ├── Sync Handlers (per service)
-  │   ├── ProgressHandler
-  │   ├── CharacterHandler
-  │   ├── PurchasesHandler
-  │   ├── RewardsHandler
-  │   ├── ProfileHandler
-  │   ├── ExpHandler
-  │   ├── FriendsHandler
-  │   ├── MailHandler
-  │   ├── PresenceHandler
-  │   └── RankingHandler
+  ├── BackendBootstrap.Awake()
+  │     └── Read BackendSettings.asset → mode = Online
   │
-  └── Auth
-      ├── FirebaseAuthHandler
-      └── AuthManager (token management)
+  ├── VContainer.Register(WebSocketSqlBackendService)
+  │
+  ├── Connect("ws://localhost:8080")
+  │     │
+  │     └── Server: accept, request auth
+  │
+  ├── Login(username, password)
+  │     │
+  │     └── Server: validate credentials, return { token, user, profile, currency }
+  │
+  ├── ProfileService.Load()
+  │     └── Display player info in Home scene
+  │
+  └── CurrencyService.GetBalance()
+        └── Show gold/gems in HUD and menus
 ```
 
-## Data Flow
+## Define Symbols
 
-```
-Public Release Build:
-  GameClient ──> Template Systems ──> Local Save (PlayerPrefs + Binary)
+| Build | Defines | IBackendService |
+|-------|---------|-----------------|
+| Production | `UNITY_PIPELINE_URP` | WebSocketSqlBackendService |
+| Dev/Editor | `UNITY_PIPELINE_URP` | Per BackendSettings.asset |
+| Offline dev | `UNITY_PIPELINE_URP` | OfflineBackendService |
 
-Lab Track Build:
-  GameClient ──> Template Systems ──> OfflineBackendService (local)
-                                   ──> FirebaseBackendService (cloud sync)
-                                   ──> WebSocketSqlBackendService (persistent)
-                                   ──> Fusion 2 (real-time multiplayer)
-```
+No `FIREBASE` define on any platform. Remove from Player Settings.
+No `FUSION_*` defines on any platform. Remove from Player Settings.
 
-## Security Boundaries
+## Security
 
-- Firebase native plugins (DLLs) exist in `Assets/Plugins/` — harmless unless initialized
-- Firebase config files (`google-services.json`, `GoogleService-Info.plist`) apparently NOT present yet
-- All backend code is in template vendor tree — we don't remove it, we just prevent its initialization
-- The `OfflineBackendService` is safe for Public Release (local-only persistence)
+- Server-side: password hashing (bcrypt), session tokens (JWT), rate limiting
+- Unity client: store token in SecurePrefs (already exists in template)
+- Server-authoritative: all currency/score operations validated server-side
+- No sensitive data in client memory after logout
+- SQL injection protection via parameterized queries (server-side only)

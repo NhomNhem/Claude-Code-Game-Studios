@@ -2,47 +2,50 @@
 
 <!-- STATUS -->
 - **Stage**: Concept
-- **Epic**: FOUNDATION-001 — Project Initialization
+- **Epic**: BACKEND-001 — Backend Settings & DI Setup
 - **Story**: None started
 - **Sprint**: None
 - **Review Mode**: full
 - **Last Updated**: 2026-05-24
-- **Next Gate**: Gate Check — Concept → Systems Design
+- **Next Gate**: Gate Check — Concept → Backend Ready
 <!-- /STATUS -->
 
 ## Current Focus
 
-Initializing project documentation and updating with actual template audit findings.
+Documentation initialized. Backend architecture settled: WebSocket + SQL is primary
+production backend from day one. Offline is dev/fallback. Firebase deferred.
 
 ## Completed
 
-- [x] Read GameClient project structure (Unity 6000.3.11f1, BulletHell Elemental Template)
-- [x] Full script inventory (~250+ C# files across template)
-- [x] Identified built-in backend layer (Firebase, WebSocket, Fusion 2, IAP, Battle Pass)
-- [x] Created template-audit.md, system-map.md, backend-map.md, customization-plan.md
-- [x] Created AGENTS.md with two-track rules and actual define symbols
-- [x] Updated CLAUDE.md with Unity 6 configuration
-- [x] Created product brief, roadmap, milestone plan, epic list, story index
-- [x] Created QA strategy and release plan
+- [x] Full GameClient audit (~250+ scripts, 8 scenes, backend layer, define symbols)
+- [x] Template audit, system map, backend map, customization plan written
+- [x] AGENTS.md, CLAUDE.md configured with two-track system
+- [x] Product brief, roadmap, milestone plan created
+- [x] Epic list, story index, QA strategy, release plan created
+- [x] Backend decision: WebSocket + SQL primary, Offline fallback, Firebase deferred
 
 ## Active Tasks
 
-None — documentation initialization complete, awaiting next direction.
+None — backend decision documented. Awaiting implementation greenlight.
 
-## Key Findings (from GameClient Audit)
+## Key Decisions
 
-1. **Template is NOT empty**: Full game framework exists with 250+ scripts
-2. **Backend is BUILT IN**: Firebase, Fusion 2, WebSocket/SQL, IAP, Battle Pass all present
-3. **Defines need cleanup**: `FIREBASE` on Standalone, `FUSION_*` on Android/WebGL
-4. **VContainer DI**: Used by BackendLifetimeScope — must respect this pattern
-5. **Input System**: 8 actions (Move, Look, Attack, Interact, Jump, Sprint, Previous, Next)
-6. **8 scenes** in build: Login, Home, MapArena1-4, PVPArenaBR, PVPArena2
-7. **Product name**: Still default `Tiny-Rift-Survivors-GameClient` / `DefaultCompany`
-8. **`_TinyRift/` directory**: Does not exist yet — must be created on first custom code
+1. **Backend**: WebSocket + SQL is PRIMARY production backend (not Lab Track)
+2. **Offline**: Dev/test/fallback only (built-in OfflineBackendService)
+3. **Firebase**: Deferred indefinitely (remove FIREBASE define)
+4. **Fusion 2**: Deferred (remove FUSION_* defines)
+5. **IAP/BP**: Deferred (not in Public Release)
+6. **M0 focus**: BackendSettings → BackendBootstrap → WebSocket config → Server → MySQL → E2E
 
-## Next Session
+## Next Steps (M0 Order)
 
-- Review all updated docs
-- Decide on backend define symbol cleanup
-- Proceed to game concept brainstorming (/brainstorm)
-- Create `Assets/_TinyRift/` directory structure
+1. Create `Assets/_TinyRift/` directory structure
+2. Create `BackendSettings.asset` ScriptableObject
+3. Create `BackendBootstrap.cs` (VContainer registration)
+4. Configure `WebSocketSqlBackendService`
+5. Create `tiny-rift-server` repo
+6. Design MySQL schema
+7. Build server auth handler
+8. Build server profile handler
+9. Build server currency handler
+10. Unity ↔ WebSocket E2E: login → profile → currency

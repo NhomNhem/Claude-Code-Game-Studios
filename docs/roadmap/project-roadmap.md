@@ -2,60 +2,63 @@
 
 ## Roadmap Context
 
-The BulletHell Elemental Template already provides a complete game framework.
-Our task is primarily **content creation, configuration, and extension** rather than
-building systems from scratch. This changes the roadmap from "build systems" to
-"configure template + add custom content."
+The BulletHell Elemental Template provides a complete game framework including
+the `IBackendService` abstraction. We configure `WebSocketSqlBackendService` as
+primary and build the server-side infrastructure alongside the game client.
 
 ```
-Phase 1: Foundation ──> Phase 2: Core Content ──> Phase 3: Progression ──> Phase 4: Polish ──> Phase 5: Lab
-  Docs / Setup           Elemental Skills          Meta-progression        Balance                Backend
-  Audit template         Custom enemies            Achievements            VFX/Audio              Enable template's
-  Configure existing     Synergy system            Extend save system      Steam integration      built-in services
+M0: Backend ──> M1: Core ──> M2: Progression ──> M3: Polish ──> Future
+  WebSocket/SQL    Elemental Skills    Meta-progression    Balance          Firebase
+  Node.js Server   Custom Enemies     Achievements        VFX/Audio        Fusion 2
+  MySQL Schema     Synergy System     Save/Load           Steam EA Launch  IAP/BP
+  Login/Currency   Waves/Upgrades     Shop                Bug Fixing
 ```
 
-## Phase 1: Foundation (Weeks 1-2)
-- [x] Setup engine & project docs
-- [x] Audit template systems (complete: 250+ scripts inventoried)
-- [ ] Game concept document (brainstorm)
-- [ ] Art bible & visual identity
+## M0 — Backend Foundation (Weeks 1-2)
 - [ ] Create `Assets/_TinyRift/` directory structure
-- [ ] GDDs for custom systems (elemental skills, synergies, enemies)
-- [ ] Backend disablement plan (remove FIREBASE/FUSION defines)
-- [ ] Project architecture blueprint + ADRs
+- [ ] `BackendSettings.asset` ScriptableObject
+- [ ] `BackendBootstrap.cs` — VContainer registration for IBackendService
+- [ ] Configure `WebSocketSqlBackendService` connection settings
+- [ ] Remove `FIREBASE` and `FUSION_*` defines from Player Settings
+- [ ] Create `tiny-rift-server` repo (Node.js + Colyseus)
+- [ ] MySQL schema design (users, profiles, currencies, leaderboards)
+- [ ] Server auth handler (login/register)
+- [ ] Server profile handler (read/update)
+- [ ] Server currency handler (server-authoritative add/spend)
+- [ ] Unity ↔ WebSocket end-to-end: login → profile → currency round-trip
+- [ ] GDDs for core gameplay systems
+- [ ] Art bible & visual identity
 
-## Phase 2: Core Content (Weeks 3-6)
-- [ ] 3 signature skills (fire, ice, lightning) — extend SkillData
-- [ ] Elemental synergy system (vaporize, plasma, shatter)
-- [ ] 5 enemy types with distinct behaviors — configure MonsterEntity
-- [ ] Wave progression tuning — configure Wave/GameplayManager
-- [ ] Skill upgrade paths — configure SkillPerkData
-- [ ] Damage numbers & basic VFX — configure existing systems
+## M1 — Core Content (Weeks 3-6)
+- [ ] 3 signature skills (fire, ice, lightning)
+- [ ] Elemental synergy system (freeze, chain, shatter)
+- [ ] 5 enemy types with distinct behaviors
+- [ ] Wave progression system (configure Wave/GameplayManager)
+- [ ] Skill upgrade paths (configure SkillPerkData)
+- [ ] Damage numbers & basic VFX
+- [ ] HUD integration with server currency
 
-## Phase 3: Progression (Weeks 7-8)
-- [ ] Meta-progression system (between-run persistent upgrades)
-- [ ] Extend PlayerSave for new progression data
-- [ ] In-run shop configuration — configure ShopItem data
+## M2 — Progression (Weeks 7-8)
+- [ ] Meta-progression system (between-run upgrades)
+- [ ] Persistent save/load via backend sync
+- [ ] In-run shop (configure ShopItem data)
 - [ ] Achievement system
 - [ ] Menus (main, pause, game over, upgrades)
 
-## Phase 4: Polish & Release (Weeks 9-10)
+## M3 — Polish & Early Access (Weeks 9-10)
 - [ ] Balance tuning & playtesting
 - [ ] Full VFX pass (elemental reactions, hits, explosions)
 - [ ] SFX & music integration
-- [ ] UI polish (menus, HUD, transitions)
+- [ ] UI polish
 - [ ] Performance optimization (URP, object pooling)
-- [ ] Bug fixing & QA pass
+- [ ] Product rename (from template defaults)
 - [ ] Steam integration
-- [ ] Rename product/company/bundle from template defaults
-- [ ] Early Access release
+- [ ] QA pass → smoke check → release checklist
+- [ ] Early Access launch
 
-## Phase 5: Full-Stack Lab Track (Weeks 11+)
-- [ ] Add `LAB_TRACK` define
-- [ ] Configure Firebase Auth + Firestore (already built in template)
-- [ ] Configure Fusion 2 multiplayer (already built in template)
-- [ ] Configure IAP (already built in template)
-- [ ] Configure Battle Pass (already built in template)
-- [ ] Configure WebSocket/SQL backend (already built in template)
-- [ ] Configure Ranking/Leaderboards (already built in template)
-- [ ] Lab Track build
+## Future (Post-EA)
+- [ ] Firebase (deferred, not on primary path)
+- [ ] Fusion 2 multiplayer
+- [ ] IAP / Battle Pass
+- [ ] Leaderboards
+- [ ] Analytics & live-ops tools
