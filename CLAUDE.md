@@ -85,6 +85,10 @@ and defer `FirebaseBackendService`. Remove `FIREBASE` from Player Settings defin
 | WebSocket SQL | WebSocketSqlBackendService (built in template) | Configure |
 | Offline | OfflineBackendService (built in template) | Configure |
 
+## Engine Version Reference
+
+@docs/engine-reference/unity/VERSION.md
+
 ## Current Stage
 
 - **Stage**: Concept (production/stage.txt)

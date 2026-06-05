@@ -2,10 +2,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Engine Version** | Unity 6.3 LTS |
-| **Release Date** | December 2025 |
-| **Project Pinned** | 2026-02-13 |
-| **Last Docs Verified** | 2026-02-13 |
+| **Engine Version** | Unity 6000.3.11f1 (Unity 6 Update 3) |
+| **Release Date** | 2026-03-11 |
+| **Project Pinned** | 2026-05-25 |
+| **Last Docs Verified** | 2026-05-25 |
 | **LLM Knowledge Cutoff** | May 2025 |
 
 ## Knowledge Gap Warning
@@ -19,10 +19,11 @@ before suggesting Unity API calls.
 
 | Version | Release | Risk Level | Key Theme |
 |---------|---------|------------|-----------|
-| 6.0 | Oct 2024 | HIGH | Unity 6 rebrand, new rendering features, Entities 1.3, DOTS improvements |
-| 6.1 | Nov 2024 | MEDIUM | Bug fixes, stability improvements |
-| 6.2 | Dec 2024 | MEDIUM | Performance optimizations, new input system improvements |
-| 6.3 LTS | Dec 2025 | HIGH | First LTS since 6.0, production-ready DOTS, enhanced graphics features |
+| 6000.0.x (Unity 6.0) | Oct 2024 | HIGH | Unity 6 rebrand, new rendering features, Entities 1.3, DOTS improvements |
+| 6000.1.x (Unity 6.1) | Apr 2025 | MEDIUM | Bug fixes, stability improvements |
+| 6000.2.x (Unity 6.2) | Sep 2025 | MEDIUM | Performance optimizations, new input system improvements |
+| 6000.3.0f1 (Unity 6.3) | Dec 2025 | HIGH | First LTS since 6.0, production-ready DOTS, enhanced graphics features |
+| **6000.3.11f1** | **Mar 2026** | **HIGH** | **Current — patch 11 of 6000.3 LTS** |
 
 ## Major Changes from 2022 LTS to Unity 6.3 LTS
 

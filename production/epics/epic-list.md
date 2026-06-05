@@ -12,29 +12,42 @@ Deferred: `FirebaseBackendService`
 
 ## Epic Index
 
-| ID | Epic | Phase | Priority | Status |
-|----|------|-------|----------|--------|
-| BACKEND-001 | Backend Settings & DI Setup | M0 | P0 | Active |
-| BACKEND-002 | WebSocket SQL Service | M0 | P0 | Planned |
-| BACKEND-003 | Server Infrastructure (Node.js) | M0 | P0 | Planned |
-| BACKEND-004 | MySQL Schema & Data Layer | M0 | P0 | Planned |
-| BACKEND-005 | Auth & Profile Flow | M0 | P0 | Planned |
-| BACKEND-006 | Currency System | M0 | P0 | Planned |
-| FOUNDATION-001 | Project Initialization | M0 | P0 | Active |
-| CONCEPT-001 | Game Concept & Design | M0 | P0 | Planned |
-| CONCEPT-002 | Art & Visual Identity | M0 | P0 | Planned |
-| CORE-001 | Elemental Skill System | M1 | P1 | Planned |
-| CORE-002 | Custom Enemies & Waves | M1 | P1 | Planned |
-| CORE-003 | Synergy System | M1 | P1 | Planned |
-| PROG-001 | Meta-Progression | M2 | P2 | Planned |
-| PROG-002 | Save System & Backend Sync | M2 | P2 | Planned |
-| PROG-003 | Shop & Upgrades | M2 | P2 | Planned |
-| POLISH-001 | VFX & Audio | M3 | P3 | Planned |
-| POLISH-002 | UI/UX Polish | M3 | P3 | Planned |
-| POLISH-003 | Balance & Tuning | M3 | P3 | Planned |
-| POLISH-004 | Performance | M3 | P3 | Planned |
-| RELEASE-001 | Product Identity & Steam | M3 | P0 | Planned |
-| RELEASE-002 | QA & Release | M3 | P0 | Planned |
+| ID | Epic | Phase | Priority | Status | Stories |
+|----|------|-------|----------|--------|---------|
+| BACKEND-001 | Backend Settings & DI Setup | M0 | P0 | Active | — |
+| BACKEND-002 | WebSocket SQL Service | M0 | P0 | Planned | — |
+| BACKEND-003 | Server Infrastructure (Node.js) | M0 | P0 | Planned | — |
+| BACKEND-004 | MySQL Schema & Data Layer | M0 | P0 | Planned | — |
+| BACKEND-005 | Auth & Profile Flow | M0 | P0 | Planned | — |
+| BACKEND-006 | Currency System | M0 | P0 | Planned | — |
+| FOUNDATION-001 | Project Initialization | M0 | P0 | Active | — |
+| CONCEPT-001 | Game Concept & Design | M0 | P0 | Planned | — |
+| CONCEPT-002 | Art & Visual Identity | M0 | P0 | Planned | — |
+| CORE-001 | Elemental Skill System | M1 | P1 | Planned | — |
+| CORE-002 | Custom Enemies & Waves | M1 | P1 | Planned | — |
+| CORE-003 | Synergy System | M1 | P1 | Planned | — |
+| PROG-001 | Meta-Progression | M2 | P2 | Planned | — |
+| PROG-002 | Save System & Backend Sync | M2 | P2 | Planned | — |
+| PROG-003 | Shop & Upgrades | M2 | P2 | Planned | — |
+| POLISH-001 | VFX & Audio | M3 | P3 | Planned | — |
+| POLISH-002 | UI/UX Polish | M3 | P3 | Planned | — |
+| POLISH-003 | Balance & Tuning | M3 | P3 | Planned | — |
+| POLISH-004 | Performance | M3 | P3 | Planned | — |
+| RELEASE-001 | Product Identity & Steam | M3 | P0 | Planned | — |
+| RELEASE-002 | QA & Release | M3 | P0 | Planned | — |
+| SYS-001 | Input System | M0 | P0 | Ready | 4 |
+| SYS-002 | Hit Detection | M1 | P1 | Ready | 3 |
+| SYS-003 | Network Pooling | M0 | P0 | Ready | 4 |
+| SYS-004 | Scene Management | M1 | P1 | Ready | 4 |
+| SYS-005 | Save & Profile | M0 | P0 | Ready | 8 |
+| SYS-006 | Zone & World | M1 | P1 | Ready | 2 |
+| SYS-007 | Audio System | M3 | P3 | Ready | 2 |
+| SYS-008 | VFX System | M3 | P3 | Ready | 2 |
+| SYS-011 | Damage & Health | M1 | P1 | Draft | 1 |
+| SYS-012 | Enemy AI | M1 | P1 | Draft | 1 |
+| SYS-020 | Orbit Combat | M1 | P1 | Active | — |
+| SYS-009 | Currency & Lore | M2 | P2 | Ready | 2 |
+| SYS-010 | Status Effect System | M1 | P1 | Ready | 2 |
 
 ## Active Epics
 

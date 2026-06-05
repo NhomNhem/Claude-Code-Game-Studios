@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: ""
+last_updated: "2026-06-05"  # ADR-007: enemy-ai-state-machine-architecture added
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -43,7 +43,26 @@ last_updated: ""
 # interface: how other systems access this state (read-only property, method call,
 #   signal, shared resource, etc.) — this is the contract other ADRs depend on.
 
-state_ownership: []
+state_ownership:
+  - state: persistent_save_data
+    status: active
+    owner_system: IPersistStateService
+    adr: docs/architecture/adr-006-save-profile-serialization.md
+    interface: "PersistStateAsync/LoadPersistentAsync/LoadRunStateAsync — full read/write via UniTask APIs. Accumulative mutations via ModifyGoldAsync/ModifyPremiumCurrencyAsync/AddUnlockAsync/AddLoreFragmentAsync under write semaphore."
+    write_access: IPersistStateService-only (domain services call accumulative methods, but the final write gate is owned by persistence)
+    referenced_by:
+      - docs/architecture/adr-006-save-profile-serialization.md
+    added: 2026-06-01
+
+  - state: pending_sync_queue
+    status: active
+    owner_system: IProfileSyncService
+    adr: docs/architecture/adr-006-save-profile-serialization.md
+    interface: ".synclog file at Application.persistentDataPath/.synclog — append-only transaction log. Read via ReplaySyncLogAsync, compaction via CompactionSyncLogAsync."
+    write_access: IProfileSyncService-only
+    referenced_by:
+      - docs/architecture/adr-006-save-profile-serialization.md
+    added: 2026-06-01
 
 # Example:
 #
@@ -71,7 +90,57 @@ state_ownership: []
 #
 # pattern options: signal | direct_call | event_bus | shared_resource | rpc | none
 
-interfaces: []
+interfaces:
+  - contract: service_registration_pattern
+    status: active
+    pattern: direct_call
+    producer: TinyRiftScope
+    consumers:
+      - All 35+ custom systems across Foundation/Core/Feature/Presentation
+    adr: docs/architecture/adr-001-vcontainer-di-architecture.md
+    contract_detail: "All custom systems register as interface singletons in TinyRiftScope. Consumers depend on interfaces, not concrete types. TinyRiftScope is child of BackendLifetimeScope (template scope)."
+    referenced_by:
+      - docs/architecture/adr-001-vcontainer-di-architecture.md
+    added: 2026-06-01
+
+  - contract: event_bus_communication
+    status: active
+    pattern: event_bus
+    producer: "Any system (publishes via IEventBus)"
+    consumers:
+      - "Any system (subscribes via ISubscriber)"
+    adr: docs/architecture/adr-002-event-bus-contract.md
+    contract_detail: "All cross-system communication goes through typed Event Bus events (readonly record struct). Producers publish via IEventBus, consumers subscribe via ISubscriber. Never direct system references."
+    referenced_by:
+      - docs/architecture/adr-002-event-bus-contract.md
+      - docs/architecture/adr-006-save-profile-serialization.md
+    added: 2026-06-01
+
+  - contract: persistence_sync_architecture
+    status: active
+    pattern: shared_resource
+    producer: IPersistStateService
+    consumers:
+      - IProfileSyncService (reads PersistentSaveData, maps to sync payload)
+      - IBackendService / WebSocketSQL (receives synced payload from ProfileSyncService)
+    adr: docs/architecture/adr-006-save-profile-serialization.md
+    contract_detail: "Three-layer architecture: IPersistStateService owns disk I/O (Foundation), IProfileSyncService owns sync orchestration (Core), IBackendService owns transport. Each layer knows nothing about the other's internal concerns."
+    referenced_by:
+      - docs/architecture/adr-006-save-profile-serialization.md
+    added: 2026-06-01
+
+  - contract: enemy_ai_service_registration
+    status: active
+    pattern: direct_call
+    producer: TinyRiftScope
+    consumers:
+      - EnemyChaseAI (per-enemy MonoBehaviour)
+      - Wave Spawning (pool activation/deactivation)
+    adr: docs/architecture/adr-007-enemy-ai-state-machine-architecture.md
+    contract_detail: "IEnemyAIService registered as singleton in TinyRiftScope. Enemies register/unregister via service methods (RegisterEnemy/UnregisterEnemy), not static lists. Service provides central enemy registry for Wave Spawning coordination."
+    referenced_by:
+      - docs/architecture/adr-007-enemy-ai-state-machine-architecture.md
+    added: 2026-06-05
 
 # Example:
 #
@@ -100,27 +169,15 @@ interfaces: []
 # Register a budget when an ADR explicitly claims a frame time allocation.
 # The registry lets /architecture-review verify the total doesn't exceed the target.
 
-performance_budgets: []
-
-# Example:
-#
-# performance_budgets:
-#   - target_fps: 60
-#     total_frame_budget_ms: 16.6
-#     platform: PC             # PC | Console | Mobile | All
-#     adr: docs/architecture/adr-0000-performance-targets.md
-#     added: 2026-03-26
-#     revised: ""
-#
-#   - system: combat
-#     status: active
-#     budget_ms: 2.0
-#     adr: docs/architecture/adr-0003-combat-system.md
-#     notes: "Includes physics queries, hitbox evaluation, and damage calculation"
-#     referenced_by:
-#       - docs/architecture/adr-0003-combat-system.md
-#     added: 2026-03-26
-#     revised: ""
+performance_budgets:
+  - system: orbit_combat
+    status: active
+    budget_ms: 0.05
+    adr: docs/architecture/adr-008-orbit-combat-targeting.md
+    notes: "OrbitCombatService.LateUpdate() — ring angle advancement + projectile positioning. O(n×m) with n≤5 rings, m≤8 projectiles. < 0.05ms worst case."
+    referenced_by:
+      - docs/architecture/adr-008-orbit-combat-targeting.md
+    added: 2026-06-05
 
 
 # ─── API DECISIONS ───────────────────────────────────────────────────────────
@@ -131,7 +188,126 @@ performance_budgets: []
 # Register an API decision when the choice is non-obvious and other ADRs might
 # make a different choice for the same purpose without knowing this was decided.
 
-api_decisions: []
+api_decisions:
+  - purpose: dependency_injection
+    status: active
+    api: VContainer (bundled in Assets/BulletHellTemplate/ThirdPartyResources/Tools/VContainer/)
+    not: Zenject, custom Service Locator, Singleton pattern
+    adr: docs/architecture/adr-001-vcontainer-di-architecture.md
+    reason: "VContainer is bundled in the template. Extending it with a child scope (TinyRiftScope) leverages existing investment without adding another DI framework."
+    referenced_by:
+      - docs/architecture/adr-001-vcontainer-di-architecture.md
+    added: 2026-06-01
+
+  - purpose: async_startup_entry_point
+    status: active
+    api: VContainer IAsyncStartable (RegisterEntryPoint)
+    not: IStartable (returns void, cannot await async init), MonoBehaviour.Start(), manual call from scene controller
+    adr: docs/architecture/adr-001-vcontainer-di-architecture.md
+    reason: "IAsyncStartable returns UnityEngine.Awaitable on Unity 6000.x, enabling non-blocking async startup without coupling to scene lifecycle."
+    referenced_by:
+      - docs/architecture/adr-001-vcontainer-di-architecture.md
+    added: 2026-06-01
+
+  - purpose: event_type_format
+    status: active
+    api: "readonly record struct (C# 9, .NET Standard 2.1)"
+    not: class (heap allocation per publish), object-based dispatch (untyped, no compile-time safety)
+    adr: docs/architecture/adr-002-event-bus-contract.md
+    reason: "Zero GC allocation per publish under IL2CPP. Struct passed by in (readonly reference). Compiler-enforced immutability."
+    referenced_by:
+      - docs/architecture/adr-002-event-bus-contract.md
+    added: 2026-06-01
+
+  - purpose: event_bus_interface_split
+    status: active
+    api: "IEventBus (Publish + Subscribe) + ISubscriber (Subscribe only)"
+    not: single IEventBus for all consumers (risk of accidental Publish), separate IReadOnlyEventBus (equivalent)
+    adr: docs/architecture/adr-002-event-bus-contract.md
+    reason: "Split interface prevents consumer-only systems (HUD, Audio, VFX) from accidentally publishing events. VContainer registers same instance under two interfaces — zero cost."
+    referenced_by:
+      - docs/architecture/adr-002-event-bus-contract.md
+    added: 2026-06-01
+
+  - purpose: input_wrapper_pattern
+    status: active
+    api: "InputRouter wrapping InputActionAsset (manual action wiring)"
+    not: "generated C# class from .inputactions (tight coupling to code gen), PlayerInput component (heavy UnityEvents, no interface), legacy Input class (deprecated)"
+    adr: docs/architecture/adr-003-input-system-wrapper.md
+    reason: "Manual wrapper over InputActionAsset provides IInputRouter interface for DI/testability, GState-driven map switching via Event Bus, and device abstraction without coupling to Unity code generation."
+    referenced_by:
+      - docs/architecture/adr-003-input-system-wrapper.md
+    added: 2026-06-01
+
+  - purpose: gstate_input_routing
+    status: active
+    api: "Event Bus GameStateChangedEvent → InputRouter.SetActionMap()"
+    not: per-system GState checks, polling GState in Update, per-map Enable/Disable scattered across systems
+    adr: docs/architecture/adr-003-input-system-wrapper.md
+    reason: "Centralized map switching guarantees input fidelity without per-system GState checks. One subscriber, one switch per transition."
+    referenced_by:
+      - docs/architecture/adr-003-input-system-wrapper.md
+    added: 2026-06-01
+
+  - purpose: persistence_serialization
+    status: active
+    api: "Newtonsoft.Json (com.unity.nuget.newtonsoft-json, bundled)"
+    not: "BinaryFormatter (removed in .NET, unsafe), JsonUtility (no DateTime, no MissingMemberHandling, no JObject migration), PlayerPrefs (no conflict resolution, no schema versioning)"
+    adr: docs/architecture/adr-006-save-profile-serialization.md
+    reason: "Template already bundles Newtonsoft.Json. Enables datetime handling, forward-compatible MissingMemberHandling.Ignore, JObject-based migration, and human-readable debugging."
+    referenced_by:
+      - docs/architecture/adr-006-save-profile-serialization.md
+    added: 2026-06-01
+
+  - purpose: persistence_write_strategy
+    status: active
+    api: "Atomic temp→rename + dirty-flag+debounce coalescing"
+    not: "Direct file write (partial-write corruption on crash), synchronous write per call (I/O thrashing from rapid sequential persists)"
+    adr: docs/architecture/adr-006-save-profile-serialization.md
+    reason: "Temp→rename prevents corruption on crash. Dirty-flag+debounce coalesces N rapid calls into 1 disk write (60 calls/frame = 1 write). Settings writes get 500ms debounce to prevent slider-drag thrashing."
+    referenced_by:
+      - docs/architecture/adr-006-save-profile-serialization.md
+    added: 2026-06-01
+
+  - purpose: persistence_economy_model
+    status: active
+    api: "Server-authoritative balance with per-device earnings delta reporting"
+    not: "Absolute balance push from client (no fraud prevention, multi-device race on newest-wins)"
+    adr: docs/architecture/adr-006-save-profile-serialization.md
+    reason: "Balance = sum(earnedAcrossAllDevices) - sum(spent). Clients report deltas only. Server tracks totalEarnedPerDevice. Minimum 15-minute sync interval. 50K gold/day rolling cap across all devices."
+    referenced_by:
+      - docs/architecture/adr-006-save-profile-serialization.md
+    added: 2026-06-01
+
+  - purpose: persistence_conflict_resolution
+    status: active
+    api: "Field-type-specific merge strategies"
+    not: "One-size-fits-all newest-wins (removes progression unlocks, loses cumulative counters)"
+    adr: docs/architecture/adr-006-save-profile-serialization.md
+    reason: "Scalars: newest-wins timestamp + device-ID tiebreaker. Lists: union-merge (monotonic append-only). Cumulative: additive with per-device last-seen baseline. ZoneCompletionEntry: per-field (logical OR, max-wins, newest-wins). Each type gets the merge strategy that preserves correctness."
+    referenced_by:
+      - docs/architecture/adr-006-save-profile-serialization.md
+    added: 2026-06-01
+
+  - purpose: migration_aot_safety
+    status: active
+    api: "Typed JsonConvert.DeserializeObject<T> for migration functions"
+    not: "JObject.ToObject<T>() or Populate() (uses Reflection.Emit at runtime — crashes under IL2CPP)"
+    adr: docs/architecture/adr-006-save-profile-serialization.md
+    reason: "IL2CPP AOT compilation cannot generate deserializers at runtime. Typed DeserializeObject<T> uses statically-compiled paths. All serialized fields use [JsonProperty] for preservation. link.xml preserves schema + Newtonsoft.Json internals."
+    referenced_by:
+      - docs/architecture/adr-006-save-profile-serialization.md
+    added: 2026-06-01
+
+  - purpose: orbit_projectile_positioning
+    status: active
+    api: "LateUpdate + direct transform.position (kinematic, no Rigidbody)"
+    not: "Rigidbody.MovePosition() (would require Rigidbody on each pooled projectile, adds physics overhead), FixedUpdate positioning (would decouple orbit visual from player visual, causing visible lag)"
+    adr: docs/architecture/adr-008-orbit-combat-targeting.md
+    reason: "Orbit projectiles are purely kinematic — they don't use physics for movement. Direct transform.position in LateUpdate ensures they follow player position each frame after player movement (Update) completes. No Rigidbody overhead per pooled projectile. Physics trigger colliders work independently — trigger events fire regardless of how position is set."
+    referenced_by:
+      - docs/architecture/adr-008-orbit-combat-targeting.md
+    added: 2026-06-05
 
 # Example:
 #
@@ -157,7 +333,69 @@ api_decisions: []
 # Register a pattern when an ADR explicitly bans it AND other ADRs might
 # unknowingly use it (i.e., it's a tempting but wrong approach for this project).
 
-forbidden_patterns: []
+forbidden_patterns:
+  - pattern: service_locator
+    status: active
+    description: "Systems must not use static Service Locator for cross-system resolution. Use VContainer constructor injection instead."
+    why: "Service Locator creates hidden dependencies not visible at construction time, making systems untestable in isolation and hiding dependency chains."
+    adr: docs/architecture/adr-001-vcontainer-di-architecture.md
+    added: 2026-06-01
+
+  - pattern: singleton_t_findobject_type
+    status: active
+    description: "Systems must not use Singleton<T> or FindObjectOfType for cross-system service resolution. Use VContainer interface injection."
+    why: "Direct singleton access and scene searches create tight coupling and bypass DI, making systems untestable in isolation."
+    adr: docs/architecture/adr-001-vcontainer-di-architecture.md
+    added: 2026-06-01
+
+  - pattern: template_code_modification
+    status: active
+    description: "Never modify Assets/BulletHellTemplate/ code. Use wrapping, bridge patterns, or child scopes in Assets/_TinyRift/."
+    why: "Template modifications break the upgrade path and create merge conflicts when template updates are released."
+    adr: docs/architecture/adr-001-vcontainer-di-architecture.md
+    added: 2026-06-01
+
+  - pattern: closure_lambdas_in_subscribe
+    status: active
+    description: "Never use closure lambdas in Event Bus Subscribe calls: _bus.Subscribe<Event>((e) => Handle(e)). Use method group: _bus.Subscribe<Event>(Handle)."
+    why: "Closure lambdas allocate a new delegate + closure object per Subscribe call. In hot paths (Subscribe in Start, which is once per system) this is negligible, but the pattern prevents accidental GC allocation if Subscribe is called in Update."
+    adr: docs/architecture/adr-002-event-bus-contract.md
+    added: 2026-06-01
+
+  - pattern: legacy_input_calls
+    status: active
+    description: "Never use Input.GetKey, Input.GetMouseButton, Input.GetAxis, Input.mousePosition, or any UnityEngine.Input class in Assets/_TinyRift/. Use IInputRouter or direct Input System API."
+    why: "Input class is deprecated in Unity 6. Does not support gamepad, touch, or rebinding. Any usage would create untestable code and inconsistent input behavior across devices."
+    adr: docs/architecture/adr-003-input-system-wrapper.md
+    added: 2026-06-01
+
+  - pattern: generated_input_class_as_primary
+    status: active
+    description: "Never use a generated C# InputActionAsset class as the primary input access pattern. All input must go through IInputRouter interface."
+    why: "Generated classes tie consumers to Unity's input code generation pipeline. IInputRouter provides testability, device abstraction, and GState routing that generated classes cannot provide."
+    adr: docs/architecture/adr-003-input-system-wrapper.md
+    added: 2026-06-01
+
+  - pattern: jobject_toobject_in_migration
+    status: active
+    description: "Never use JObject.ToObject<T>() or Populate() in migration functions. Use typed JsonConvert.DeserializeObject<T>() with [JsonProperty] annotations."
+    why: "JObject.ToObject<T>() and Populate() use runtime Reflection.Emit to generate deserializers. Under IL2CPP/AOT, this crashes with ExecutionEngineException because the JIT is unavailable. Typed DeserializeObject<T>() uses statically-compiled AOT-safe paths."
+    adr: docs/architecture/adr-006-save-profile-serialization.md
+    added: 2026-06-01
+
+  - pattern: absolute_balance_push
+    status: active
+    description: "Never push absolute gold or premiumCurrency values to the server. Report earnings deltas (earnedThisSession) only."
+    why: "Absolute balance push from client enables single-device fraud (client corrupts or modifies the value) and creates multi-device merge races (newest-wins overwrites earnings from other devices). The delta-reporting model with per-device totalEarned tracking is server-authoritative and supports offline play."
+    adr: docs/architecture/adr-006-save-profile-serialization.md
+    added: 2026-06-01
+
+  - pattern: enemy_static_registration
+    status: active
+    description: "Systems must not use static lists for enemy management. Use IEnemyAIService.RegisterEnemy/UnregisterEnemy instead."
+    why: "Static lists create hidden dependencies, break testability, and bypass DI. IEnemyAIService provides central enemy registry for Wave Spawning coordination while respecting VContainer DI patterns."
+    adr: docs/architecture/adr-007-enemy-ai-state-machine-architecture.md
+    added: 2026-06-05
 
 # Example:
 #

@@ -12,6 +12,7 @@
 │   CharacterEntity   MonsterEntity   Combat   Skills   Buffs  │
 │   Projectiles   Waves   Drops   XP   Gold   Upgrades         │
 │   Movement (2D)   Collision   Pooling   FSM Animation        │
+│   Skill Presentation Adapter (custom — animation feel)       │
 ├──────────────────────────────────────────────────────────────┤
 │                    Systems Layer                              │
 │   EventBus   InstancePool   LanguageManager                  │
@@ -24,6 +25,12 @@
 │   └── FirebaseBackendService        ← DEFERRED               │
 │   BackendSettings.asset                                       │
 │   BackendBootstrap                                            │
+├──────────────────────────────────────────────────────────────┤
+│                 Multiplayer Layer (Fusion 2.1.1)              │
+│   Shared Mode — production baseline                          │
+│   Host Mode — lab only (Assets/_TinyRift/Future/)            │
+│   FusionLobbyManager   GameplaySync   NetworkedEventBus      │
+│   (all template built-in, gated by #if FUSION2)              │
 ├──────────────────────────────────────────────────────────────┤
 │                    Server Side (tiny-rift-server)              │
 │   Node.js + Colyseus                                         │
@@ -50,10 +57,14 @@
 | Systems | Event Bus | EventBus (typed events) | Extend |
 | Systems | Pooling | MonsterPool, DropPool, DamagePopup | Configure |
 | Systems | Localization | LanguageManager | Configure |
+| Systems | Animation Feel | SkillPresentationAdapter (custom) | **Create — bridge pattern** |
 | Backend | DI Container | VContainer + BackendLifetimeScope | Extend |
 | Backend | WebSocket SQL | WebSocketSqlBackendService (built in) | **Configure — primary** |
 | Backend | Offline | OfflineBackendService (built in) | **Configure — fallback** |
 | Backend | Firebase | FirebaseBackendService + 16 sync handlers | **DEFER** |
+| Multiplayer | Fusion Lobby | FusionLobbyManager (template) | Configure — Shared Mode baseline |
+| Multiplayer | Gameplay Sync | GameplaySync (template) | Configure — Shared Mode |
+| Multiplayer | Host Mode Lab | Future lab in Assets/_TinyRift/Future/ | **If needed** |
 
 ## M0 Backend Flow
 
@@ -94,11 +105,19 @@
 └───────────────────────────────────────────────────────┘
 ```
 
-## Future Systems (Locked — in Assets/_TinyRift/Future/)
+## Deferred / Locked
 
 | System | When | Justification |
 |--------|------|---------------|
 | Firebase Auth + Firestore | Deferred | Not on primary path |
-| Fusion 2 Multiplayer | Future | After core game loop ships |
+| Fusion 2 Host Mode | Lab only | If Shared Mode proves insufficient for PvP |
 | IAP / Battle Pass | Future | Post-launch monetization |
 | Analytics | Future | When needed for live-ops |
+
+## Known Improvement Areas
+
+| Area | Approach | Status |
+|------|----------|--------|
+| Animation/skill feel | SkillPresentationAdapter (bridge pattern, no template edits) | Planned — M1 |
+| Fusion Shared Mode smoke test | NetworkRunner → room → map → spawn | Planned — M0.5 |
+| Template component tuning | ScriptableObject profiles only — no vendor code changes | Ongoing |

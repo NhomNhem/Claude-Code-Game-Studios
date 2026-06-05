@@ -1,0 +1,52 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-merge-conflict
+
+      - id: check-yaml
+        exclude: ^(game-client/|backend-colyseus/|tools/)
+
+      - id: check-json
+        exclude: ^(game-client/|backend-colyseus/|tools/)
+
+      - id: end-of-file-fixer
+        exclude: >
+          (?x)^(
+            game-client/|
+            backend-colyseus/|
+            tools/|
+            .logs/
+          )
+
+      - id: trailing-whitespace
+        exclude: >
+          (?x)^(
+            game-client/|
+            backend-colyseus/|
+            tools/|
+            .logs/
+          )
+
+      - id: check-added-large-files
+        args: ["--maxkb=20480"]
+
+  - repo: local
+    hooks:
+      - id: trs-forbid-secrets-parent
+        name: forbid secrets in parent repo
+        entry: python scripts/precommit/forbid_secrets.py
+        language: system
+        pass_filenames: true
+
+      - id: trs-check-submodules
+        name: check submodule pointer hygiene
+        entry: python scripts/precommit/check_submodules.py
+        language: system
+        pass_filenames: false
+
+      - id: trs-forbid-generated-artifacts
+        name: forbid generated artifacts in parent repo
+        entry: python scripts/precommit/forbid_generated_artifacts.py
+        language: system
+        pass_filenames: true

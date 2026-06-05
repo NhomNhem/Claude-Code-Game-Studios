@@ -1,0 +1,338 @@
+# Entity & Asset Inventory
+#
+# Catalogue of every runtime entity, data asset, UI screen, audio/VFX
+# asset type, and persistence type across all 35 MVP GDDs.
+#
+# Groups: game-entities | scriptable-objects | ui-screens | audio |
+#         vfx | zones | data-types | network-messages | save-types
+
+version: 1
+last_updated: "2026-06-02"
+
+entities:
+
+  # ── Player / Character ────────────────────────────────────────
+  - id: E-player-hero
+    name: Player Hero
+    category: game-entity
+    type: Prefab (CharacterEntity template)
+    source: design/gdd/enemy-ai-system.md (as target)
+    notes: Template-provided CharacterEntity, wrapped via bridge pattern
+  - id: E-camp-npc-upgrade
+    name: Camp Upgrade NPC
+    category: game-entity
+    type: Prefab (static NPC)
+    source: design/ux/hero-camp.md
+    notes: Interactable character at upgrade table
+
+  # ── Enemies ───────────────────────────────────────────────────
+  - id: E-enemy-basic
+    name: Basic Chase Enemy
+    category: game-entity
+    type: Prefab (MonsterEntity template)
+    source: design/gdd/enemy-ai-system.md
+    notes: Simple chase behavior, basic attack
+  - id: E-enemy-elite
+    name: Elite Enemy
+    category: game-entity
+    type: Prefab (MonsterEntity extended)
+    source: design/gdd/enemy-ai-system.md
+    notes: Pattern-based behavior, higher stats
+  - id: E-enemy-boss
+    name: Boss Enemy
+    category: game-entity
+    type: Prefab (custom boss)
+    source: design/gdd/boss-encounter-system.md
+    notes: Multi-phase boss with telegraphs, arena gating
+
+  # ── Projectiles / Combat ──────────────────────────────────────
+  - id: E-projectile-orbit
+    name: Orbit Projectile
+    category: game-entity
+    type: Prefab (pooled)
+    source: design/gdd/orbit-combat-system.md
+    notes: Passive auto-attack projectile, element-colored
+  - id: E-projectile-burst
+    name: Burst Skill Projectile
+    category: game-entity
+    type: Prefab (pooled)
+    source: design/gdd/burst-skill-system.md
+    notes: Aimed skill projectile, per-skill variant
+  - id: E-damage-number
+    name: Damage Number Popup
+    category: game-entity
+    type: Prefab (pooled, canvas)
+    source: design/ux/hud.md
+    notes: Transient floating damage text
+  - id: E-drop-currency
+    name: Currency Drop
+    category: game-entity
+    type: Prefab (DropEntity template)
+    source: design/gdd/currency-system.md
+    notes: Gold / Memory Shard pickups
+
+  # ── ScriptableObjects (Data Assets) ──────────────────────────
+  - id: SO-skill-definition
+    name: SkillDefinition
+    category: scriptable-object
+    type: ScriptableObject
+    source: design/gdd/skill-data-system.md
+    fields: id, element, cooldown, damage, rarity, icon, upgradeDefs, vfxProfileKey
+  - id: SO-zone-definition
+    name: ZoneDefinition
+    category: scriptable-object
+    type: ScriptableObject
+    source: design/gdd/zone-definition-system.md
+    fields: zoneId, waveConfigs, enemySpawnTable, bossData
+  - id: SO-pool-profile
+    name: PoolProfile
+    category: scriptable-object
+    type: ScriptableObject
+    source: design/gdd/object-pooling.md
+    fields: prefab, preWarmCount, maxSize, growIncrement
+  - id: SO-shake-profile
+    name: ShakeProfile
+    category: scriptable-object
+    type: ScriptableObject
+    source: design/gdd/screen-shake-system.md
+    fields: intensity, duration, frequency
+  - id: SO-presentation-profile
+    name: PresentationProfile
+    category: scriptable-object
+    type: ScriptableObject
+    source: design/gdd/skill-presentation-adapter.md
+    fields: vfxSequence, hitStopDuration, audioCue
+  - id: SO-lore-fragment
+    name: LoreFragmentData
+    category: scriptable-object
+    type: ScriptableObject
+    source: design/gdd/lore-fragment-system.md
+    fields: fragmentId, zoneId, displayName, text, glyphSprite
+  - id: SO-upgrade-definition
+    name: UpgradeDefinition
+    category: scriptable-object
+    type: ScriptableObject
+    source: design/gdd/hero-camp-progression.md
+    fields: upgradeId, levels, costs, effectDescription
+  - id: SO-scene-registry
+    name: SceneRegistrySO
+    category: scriptable-object
+    type: ScriptableObject
+    source: design/gdd/scene-manager.md
+    fields: sceneMappings per GState/ZoneId
+  - id: SO-backend-settings
+    name: BackendSettings
+    category: scriptable-object
+    type: ScriptableObject
+    source: AGENTS.md / template
+    fields: backendType, serverUrl, offlineFallback
+
+  # ── UI Screens / Panels ──────────────────────────────────────
+  - id: UI-main-menu
+    name: Main Menu
+    category: ui-screen
+    type: Unity Scene + Canvas
+    source: design/ux/main-menu.md
+    components: Play/Quit/Settings buttons, toast, notification dot
+  - id: UI-hero-camp
+    name: Hero Camp
+    category: ui-screen
+    type: Unity Scene (walkable 2D)
+    source: design/ux/hero-camp.md
+    components: Player, campfire, upgrade table, codex, start portal, currency bar
+  - id: UI-hud
+    name: HUD
+    category: ui-screen
+    type: Canvas overlay
+    source: design/ux/hud.md
+    components: HP bar, XP bar, currency, timer, skill icons, damage numbers
+  - id: UI-pause-menu
+    name: Pause Menu
+    category: ui-screen
+    type: Canvas overlay
+    source: design/ux/pause-menu.md
+    components: Resume/Settings/Quit buttons, run summary
+  - id: UI-camp-menu
+    name: Camp Menu (Overlay)
+    category: ui-screen
+    type: Canvas overlay
+    source: design/gdd/camp-menu-ui.md
+    components: Upgrades/Map/Codex tabs, purchase buttons, zone grid
+  - id: UI-draft-panel
+    name: Draft Panel
+    category: ui-screen
+    type: Canvas overlay
+    source: design/gdd/draft-panel-ui.md
+    components: 3-card parchment, hover glow, pick-up animation
+  - id: UI-codex
+    name: Codex UI
+    category: ui-screen
+    type: Canvas overlay
+    source: design/gdd/codex-ui.md
+    components: Fragment list, reader panel, rune-to-text toggle
+  - id: UI-loading
+    name: Loading / Transition Screen
+    category: ui-screen
+    type: Canvas overlay
+    source: design/gdd/loading-transition-system.md
+    components: Zone title card, ink-stamp transitions, tips
+  - id: UI-run-completion
+    name: Run Completion Screen
+    category: ui-screen
+    type: Canvas overlay
+    source: design/gdd/run-completion-flow.md
+    components: Summary stats, rewards, continue button
+  - id: UI-settings
+    name: Settings Overlay
+    category: ui-screen
+    type: Canvas overlay
+    source: design/ux/main-menu.md / design/ux/pause-menu.md
+    notes: Audio, video, controls, language tabs
+  - id: UI-confirmation-dialog
+    name: Confirmation Dialog
+    category: ui-screen
+    type: Modal overlay
+    source: design/ux/pause-menu.md
+    notes: Shared confirmation pattern (quit run, quit to desktop)
+
+  # ── Audio ────────────────────────────────────────────────────
+  - id: AUD-mixer-bus
+    name: Audio Mixer Buses
+    category: audio
+    type: Unity Audio Mixer
+    source: design/gdd/audio-system.md
+    buses: Master, SFX, Music
+  - id: AUD-sfx-cue
+    name: SFX Cue
+    category: audio
+    type: AudioClip reference (via string key)
+    source: design/gdd/audio-system.md
+    examples: UI click, purchase confirm, hit, death, level-up, boss warning
+  - id: AUD-music-track
+    name: Music Track
+    category: audio
+    type: AudioClip (crossfade via Audio System)
+    source: design/gdd/audio-system.md
+    tracks: Menu theme, Camp theme, Zone themes (per biome), Boss theme
+
+  # ── VFX ──────────────────────────────────────────────────────
+  - id: VFX-elemental
+    name: Elemental VFX
+    category: vfx
+    type: Particle System (pooled)
+    source: design/gdd/vfx-system.md
+    types: Fire, Ice, Lightning, Void, Nature (per Art Bible Section 8)
+  - id: VFX-hit
+    name: Hit Impact VFX
+    category: vfx
+    type: Particle System (pooled)
+    source: design/gdd/vfx-system.md
+    notes: Spawned on HitEvent, element-colored burst
+  - id: VFX-death
+    name: Death VFX
+    category: vfx
+    type: Particle System (pooled)
+    source: design/gdd/vfx-system.md
+    notes: Enemy death explosion, element-agnostic
+  - id: VFX-level-up
+    name: Level-Up VFX
+    category: vfx
+    type: Particle System (pooled)
+    source: design/gdd/level-up-system.md
+    notes: Golden burst around player
+  - id: VFX-zone-restore
+    name: Zone Restore Sweep
+    category: vfx
+    type: Screen-space effect
+    source: design/gdd/world-state.md / Art Bible 7.6.1
+    notes: Post-Processing color grading shift + particle sweep
+  - id: VFX-detection-glow
+    name: Enemy Detection Glow
+    category: vfx
+    type: Sprite glow / shader
+    source: Art Bible 7.6.2
+    notes: Aggro-range visual indicator on enemies
+  - id: VFX-boss-phase
+    name: Boss Phase-Change Lighting
+    category: vfx
+    type: Scene lighting / post-process
+    source: Art Bible 7.6.3
+    notes: Arena-wide lighting shift on boss phase transition
+
+  # ── Zones / World ────────────────────────────────────────────
+  - id: ZN-camp
+    name: Camp Scene
+    category: zone
+    type: Unity Scene
+    source: design/ux/hero-camp.md
+    notes: Hero Camp hub (menu → run flow)
+  - id: ZN-menu
+    name: Main Menu Scene
+    category: zone
+    type: Unity Scene
+    source: design/ux/main-menu.md
+    notes: Auth → Main Menu screen
+  - id: ZN-zone-01
+    name: Zone 01 — Scorched Expanse
+    category: zone
+    type: Unity Scene
+    source: design/gdd/zone-definition-system.md
+    notes: First zone, fire element theme
+  - id: ZN-zone-02
+    name: Zone 02 (planned)
+    category: zone
+    type: Unity Scene
+    source: design/gdd/zone-definition-system.md
+    notes: Additional zones added per content plan
+
+  # ── Save Data Types ──────────────────────────────────────────
+  - id: SAVE-persistent
+    name: PersistentSaveData
+    category: data-type
+    type: C# class (Newtonsoft.Json)
+    source: design/gdd/save-profile-persistence.md
+    fields: saveVersion, lastModified, gold, memoryShards, zoneCompletions, campUpgrades
+  - id: SAVE-runstate
+    name: RunStateSaveData
+    category: data-type
+    type: C# class (Newtonsoft.Json)
+    source: design/gdd/save-profile-persistence.md
+    fields: activeSkills, currentHp, currentXp, zoneId, runElapsedTime
+  - id: SAVE-synclog
+    name: SyncLogEntry
+    category: data-type
+    type: C# class
+    source: design/gdd/save-profile-persistence.md
+    fields: filePath, payload, timestamp, retryCount
+
+  # ── Network Message Types ─────────────────────────────────────
+  - id: NET-auth-register
+    name: Auth Register Message
+    category: network-message
+    type: WebSocket JSON message
+    source: design/gdd/account-profile-system.md
+    flow: Client → Server → Client
+  - id: NET-auth-login
+    name: Auth Login Message
+    category: network-message
+    type: WebSocket JSON message
+    source: design/gdd/account-profile-system.md
+    flow: Client → Server → Client
+  - id: NET-profile-get
+    name: Profile Get Message
+    category: network-message
+    type: WebSocket JSON message
+    source: design/gdd/account-profile-system.md
+    flow: Client → Server → Client
+  - id: NET-currency-delta
+    name: Currency Delta Report
+    category: network-message
+    type: WebSocket JSON message
+    source: design/gdd/currency-system.md
+    flow: Client → Server (authoritative)
+  - id: NET-heartbeat
+    name: Heartbeat / Health Check
+    category: network-message
+    type: WebSocket (built into IBackendService)
+    source: design/gdd/network-manager.md
+    flow: Bi-directional keepalive

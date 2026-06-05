@@ -10,7 +10,7 @@ Firebase is deferred and not part of the primary path.
 
 | Backend | Role | Status |
 |---------|------|--------|
-| WebSocket + SQL | Primary production backend | M0 |
+| WebSocket + SQL | Primary production backend | **Running locally — Docker stack active** |
 | Offline | Dev/test/fallback (local-only) | M0 (built in template) |
 | Firebase | Deferred — not part of primary path | Not planned |
 
@@ -27,6 +27,17 @@ IBackendService (interface)
 ```
 
 All three are already implemented. We configure and extend, not rebuild.
+
+## Verified: Docker Backend Running
+
+| Service | Status | Endpoint |
+|---------|--------|----------|
+| MySQL | Running | `localhost:3306` — DB `game_server` |
+| Redis | Running | `localhost:6379` |
+| phpMyAdmin | Running | `http://localhost:8081` |
+| GameServer (Colyseus) | Running | `ws://localhost:8080` |
+| REST /auth/register | **Verified** | Returns token → login works in Unity |
+| Unity PresenceRoom | **Verified** | Room joins, game playable |
 
 ## M0 Deliverables
 
@@ -129,7 +140,7 @@ leaderboard_entries (
 )
 ```
 
-### End-to-End Flow (MVP)
+### End-to-End Flow (Verified)
 
 ```
 Unity Startup
@@ -154,16 +165,18 @@ Unity Startup
         └── Show gold/gems in HUD and menus
 ```
 
-## Define Symbols
+All steps verified through curl (/auth/register) and Unity client (login, PresenceRoom join, game enter).
 
-| Build | Defines | IBackendService |
-|-------|---------|-----------------|
-| Production | `UNITY_PIPELINE_URP` | WebSocketSqlBackendService |
-| Dev/Editor | `UNITY_PIPELINE_URP` | Per BackendSettings.asset |
-| Offline dev | `UNITY_PIPELINE_URP` | OfflineBackendService |
+## Define Symbols (Current State)
 
-No `FIREBASE` define on any platform. Remove from Player Settings.
-No `FUSION_*` defines on any platform. Remove from Player Settings.
+| Platform | Current | Action |
+|----------|---------|--------|
+| Standalone | `UNITY_PIPELINE_URP;FUSION_WEAVER;FUSION2;FUSION_2;FUSION_2_1;FUSION_2_1_1;FUSION_2_OR_NEWER;FUSION_2_0_OR_NEWER;FUSION_2_1_OR_NEWER;FUSION_LOGLEVEL_INFO` | **Correct** — Fusion SDK auto-configured |
+| Android | `UNITY_PIPELINE_URP;FUSION_WEAVER;FUSION2;FUSION_LOGLEVEL_INFO;FUSION_2;FUSION_2_0;FUSION_2_0_8;FUSION_2_OR_NEWER;FUSION_2_0_OR_NEWER` | **Stale** — references 2.0.8, need cleanup |
+| WebGL | `UNITY_PIPELINE_URP;FUSION_WEAVER;FUSION2;FUSION_LOGLEVEL_INFO;FUSION_2;FUSION_2_0;FUSION_2_0_8;FUSION_2_OR_NEWER;FUSION_2_0_OR_NEWER` | **Stale** — references 2.0.8, need cleanup |
+
+**Action needed**: Remove stale `FUSION_*` from Android/WebGL or let Fusion Editor refresh them.
+**Action needed**: Remove `FIREBASE` define if present on any platform.
 
 ## Security
 
@@ -172,3 +185,11 @@ No `FUSION_*` defines on any platform. Remove from Player Settings.
 - Server-authoritative: all currency/score operations validated server-side
 - No sensitive data in client memory after logout
 - SQL injection protection via parameterized queries (server-side only)
+
+## Service Boundaries
+
+| Layer | Technology | Owns |
+|-------|-----------|------|
+| **WebSocketSQL** | Colyseus + MySQL | Auth, profile, economy, inventory, rewards, friends, mail, leaderboards |
+| **Fusion 2** | Photon Cloud | Realtime gameplay session only (Shared Mode baseline) |
+| **Offline** | PlayerSave (local) | Full game data when offline (dev/test) |

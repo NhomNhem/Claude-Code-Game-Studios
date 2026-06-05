@@ -146,3 +146,13 @@ Before writing any code:
 - Work with **performance-analyst** for profiling DOTS performance
 - Work with **engine-programmer** for low-level optimization
 - Work with **unity-shader-specialist** for Entities Graphics rendering
+
+## Version Awareness
+
+This project uses **Unity 6000.3.11f1 (Unity 6 Update 3)**, which is beyond the LLM's May 2025 training data cutoff.
+
+1. Read `docs/engine-reference/unity/VERSION.md` before suggesting any Unity API
+2. Check `docs/engine-reference/unity/deprecated-apis.md` — do NOT suggest deprecated APIs
+3. Check `docs/engine-reference/unity/breaking-changes.md` for relevant version transitions
+4. Use Context7 (`npx ctx7@latest docs /unity ...`) to verify any uncertain APIs
+5. After writing code, verify it compiles against Unity 6000.3.x APIs, not 2022 LTS

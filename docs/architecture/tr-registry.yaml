@@ -25,32 +25,1838 @@
 # STATUS VALUES: active | deprecated | superseded-by: TR-[system]-NNN
 
 version: 1
-last_updated: ""
+last_updated: "2026-06-05"
 
-requirements: []
+requirements:
 
-# --- EXAMPLE ENTRIES (remove when first real entries are added) ---
-#
-# - id: TR-combat-001
-#   system: combat
-#   gdd: design/gdd/combat-system.md
-#   requirement: "Player takes damage from enemies based on attack power minus defence"
-#   created: 2026-03-10
-#   revised: ""
-#   status: active
-#
-# - id: TR-combat-002
-#   system: combat
-#   gdd: design/gdd/combat-system.md
-#   requirement: "Combo window timing is 0.4 seconds between hits"
-#   created: 2026-03-10
-#   revised: "2026-04-01"
-#   status: active
-#
-# - id: TR-combat-003
-#   system: combat
-#   gdd: design/gdd/combat-system.md
-#   requirement: "Old damage formula using raw stats"
-#   created: 2026-03-10
-#   revised: ""
-#   status: superseded-by: TR-combat-001
+  # ==========================================================================
+  # Game State Manager (gstate)
+  # design/gdd/game-state-manager.md
+  # ==========================================================================
+  - id: TR-gstate-001
+    system: gstate
+    gdd: design/gdd/game-state-manager.md
+    requirement: "On startup, current state is Menu and GameStateChanged(None, Menu) is published"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-gstate-002
+    system: gstate
+    gdd: design/gdd/game-state-manager.md
+    requirement: "TransitionTo(Paused) from InRun succeeds and publishes GameStateChanged(InRun, Paused)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-gstate-003
+    system: gstate
+    gdd: design/gdd/game-state-manager.md
+    requirement: "TransitionTo(InRun) from Paused with pauseOrigin=InRun restores previous time scale and publishes GameStateChanged(Paused, InRun)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-gstate-004
+    system: gstate
+    gdd: design/gdd/game-state-manager.md
+    requirement: "Double-pause (TransitionTo(Paused) when already Paused) is silently rejected"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-gstate-005
+    system: gstate
+    gdd: design/gdd/game-state-manager.md
+    requirement: "TransitionTo(InRun) from Menu is rejected (returns false, logs error)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-gstate-006
+    system: gstate
+    gdd: design/gdd/game-state-manager.md
+    requirement: "Pause preserves bossActive flag; on resume bossActive remains true"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-gstate-007
+    system: gstate
+    gdd: design/gdd/game-state-manager.md
+    requirement: "OnApplicationFocus(false)auto-pauses by calling TransitionTo(Paused)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-gstate-008
+    system: gstate
+    gdd: design/gdd/game-state-manager.md
+    requirement: "TransitionTo(Paused) is rejected when current state is Loading"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-gstate-009
+    system: gstate
+    gdd: design/gdd/game-state-manager.md
+    requirement: "If Defeat and Victory arrive on same frame, Defeat wins"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-gstate-010
+    system: gstate
+    gdd: design/gdd/game-state-manager.md
+    requirement: "GState leaks no memory across transitions (no accumulating history, no stale subscriptions, no orphaned event handlers)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-gstate-011
+    system: gstate
+    gdd: design/gdd/game-state-manager.md
+    requirement: "Two simultaneous TransitionTo calls — first call succeeds, second is rejected"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-gstate-012
+    system: gstate
+    gdd: design/gdd/game-state-manager.md
+    requirement: "Lightweight state machine with Menu/Playing/Paused/GameOver states publishing GameStateChanged events"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Event Bus (eventbus)
+  # design/gdd/event-bus.md
+  # ==========================================================================
+  - id: TR-eventbus-001
+    system: eventbus
+    gdd: design/gdd/event-bus.md
+    requirement: "Publish/subscribe message bus decoupling producers from consumers"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-eventbus-002
+    system: eventbus
+    gdd: design/gdd/event-bus.md
+    requirement: "Define core message type catalogue before dependent GDDs are written"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-eventbus-003
+    system: eventbus
+    gdd: design/gdd/event-bus.md
+    requirement: "Event Bus consumes GameStateChanged events for routing decisions"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-eventbus-004
+    system: eventbus
+    gdd: design/gdd/event-bus.md
+    requirement: "HitEvent published by Hit Detection is consumed by Damage & Health System"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-eventbus-005
+    system: eventbus
+    gdd: design/gdd/event-bus.md
+    requirement: "Damage/kill events from DmgHealth consumed by Currency, XP, VFX, Audio, Screen Shake"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-eventbus-006
+    system: eventbus
+    gdd: design/gdd/event-bus.md
+    requirement: "GameStateChanged fires before SceneManager marks scene active (correct event ordering)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Time System (time)
+  # design/gdd/time-system.md
+  # ==========================================================================
+  - id: TR-time-001
+    system: time
+    gdd: design/gdd/time-system.md
+    requirement: "GState transitions to Paused set Time.timeScale == 0"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-time-002
+    system: time
+    gdd: design/gdd/time-system.md
+    requirement: "Transition from Paused to InRun restores pre-pause time scale (not always 1.0)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-time-003
+    system: time
+    gdd: design/gdd/time-system.md
+    requirement: "Cooldown with duration=N ticks down in scaled time; GetRemaining() returns approximate remaining time"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-time-004
+    system: time
+    gdd: design/gdd/time-system.md
+    requirement: "Cooldown with IsReady() returns true after duration expires"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-time-005
+    system: time
+    gdd: design/gdd/time-system.md
+    requirement: "TriggerHitStop(duration) sets Time.timeScale=0 for duration in unscaled time, then restores to 1.0"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-time-006
+    system: time
+    gdd: design/gdd/time-system.md
+    requirement: "RunElapsedTime tracks time spent in InRun, excluding paused time"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-time-007
+    system: time
+    gdd: design/gdd/time-system.md
+    requirement: "Cooldown with duration=0 is immediately ready (IsReady returns true)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-time-008
+    system: time
+    gdd: design/gdd/time-system.md
+    requirement: "IsReady(unknown) returns true for unregistered cooldown IDs (no exception)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-time-009
+    system: time
+    gdd: design/gdd/time-system.md
+    requirement: "TimeManager wraps Unity Time API with GState-aware time scale management"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-time-010
+    system: time
+    gdd: design/gdd/time-system.md
+    requirement: "Cooldown registry supports string-keyed cooldowns with Registration, GetRemaining, IsReady API"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Skill Data System (skilldata)
+  # design/gdd/skill-data-system.md
+  # ==========================================================================
+  - id: TR-skilldata-001
+    system: skilldata
+    gdd: design/gdd/skill-data-system.md
+    requirement: "SkillDefinition asset with valid fields returns authored data via SkillRegistry.GetDefinition(id)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-skilldata-002
+    system: skilldata
+    gdd: design/gdd/skill-data-system.md
+    requirement: "SkillDatabase.GetAllSkillIds() returns all registered skill string IDs"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-skilldata-003
+    system: skilldata
+    gdd: design/gdd/skill-data-system.md
+    requirement: "Duplicate SkillIds across assets log warning; last-loaded wins"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-skilldata-004
+    system: skilldata
+    gdd: design/gdd/skill-data-system.md
+    requirement: "SkillRegistry.CreateInstance(id) returns SkillInstance with Definition, CurrentTier=0, CooldownTimer=0"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-skilldata-005
+    system: skilldata
+    gdd: design/gdd/skill-data-system.md
+    requirement: "SkillRegistry.UpgradeInstance(instance) returns new instance with tier+1"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-skilldata-006
+    system: skilldata
+    gdd: design/gdd/skill-data-system.md
+    requirement: "UpgradeInstance at max tier (2) returns same instance (no-op)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-skilldata-007
+    system: skilldata
+    gdd: design/gdd/skill-data-system.md
+    requirement: "SkillRegistry.GetDefinition(invalidId) returns null for non-existent IDs"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-skilldata-008
+    system: skilldata
+    gdd: design/gdd/skill-data-system.md
+    requirement: "SkillDefinition with BaseDamage=0 logs OnValidate warning but is not rejected"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-skilldata-009
+    system: skilldata
+    gdd: design/gdd/skill-data-system.md
+    requirement: "Orbit-type SkillDefinition has non-zero Orbit fields and zero Burst fields"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-skilldata-010
+    system: skilldata
+    gdd: design/gdd/skill-data-system.md
+    requirement: "Burst-type SkillDefinition has non-zero Cooldown/CastRange/AimAngle fields and zero Orbit fields"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-skilldata-011
+    system: skilldata
+    gdd: design/gdd/skill-data-system.md
+    requirement: "SkillInstance serializes to JSON via JsonUtility with skillDefinitionId (string) and currentTier (int), no Unity Object references"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-skilldata-012
+    system: skilldata
+    gdd: design/gdd/skill-data-system.md
+    requirement: "String keys (VfxProfileKey, AudioCueKey, IconKey, ProjectileKey, PresentationProfileKey) are editable text fields, not object pickers (C3 compliance)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Hit Detection (hitdetect)
+  # design/gdd/hit-detection.md
+  # ==========================================================================
+  - id: TR-hitdetect-001
+    system: hitdetect
+    gdd: design/gdd/hit-detection.md
+    requirement: "Player projectile hits enemy publishes HitEvent with correct attacker, target, hit position"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-hitdetect-002
+    system: hitdetect
+    gdd: design/gdd/hit-detection.md
+    requirement: "Same enemy hit twice within 0.3s publishes only one HitEvent (per-target cooldown)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-hitdetect-003
+    system: hitdetect
+    gdd: design/gdd/hit-detection.md
+    requirement: "Same-faction collision (Player→Player) publishes no HitEvent (no friendly fire)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-hitdetect-004
+    system: hitdetect
+    gdd: design/gdd/hit-detection.md
+    requirement: "Enemy contact damage publishes HitEvent with enemy as attacker, player as target"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-hitdetect-005
+    system: hitdetect
+    gdd: design/gdd/hit-detection.md
+    requirement: "Hitbox GameObject destroyed mid-collision throws no exception"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-hitdetect-006
+    system: hitdetect
+    gdd: design/gdd/hit-detection.md
+    requirement: "On scene transition, Clear() unregisters all hitboxes/hurtboxes"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-hitdetect-007
+    system: hitdetect
+    gdd: design/gdd/hit-detection.md
+    requirement: "Faction-aware registration system (Hitbox/Hurtbox with Player/Enemy/Neutral factions)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-hitdetect-008
+    system: hitdetect
+    gdd: design/gdd/hit-detection.md
+    requirement: "Hitbox/Hurtbox MonoBehaviours register on Start() via HitDetectionRegistry, unregister on OnDestroy()"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Input System (input)
+  # design/gdd/input-system.md
+  # ==========================================================================
+  - id: TR-input-001
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "GState transition from Gameplay to Menu switches InputRouter to Menu action map"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-002
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Hold W during Gameplay calls characterEntity.Move(Vector2(0,1)) every frame"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-003
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Release all movement keys calls characterEntity.Move(Vector2(0,0))"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-004
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Mouse cursor position relative to character calls UpdateDirectionalAim() with normalized direction"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-005
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Press skill slot 1 (forward-aim) calls UseSkill(1, Vector2.zero) exactly once"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-006
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Hold skill slot 2 (directed-aim) for 400ms then release calls UseSkill(2, lastAimDir) exactly once"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-007
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Press Escape during Gameplay calls TransitionTo(Paused)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-008
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Press Escape during Paused returns GState to previous state"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-009
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Menu map active with Enter/Confirm fires focused button onClick"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-010
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Directed-aim hold state on GState→Paused clears held state without calling UseSkill on return"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-011
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Rebinding persists across game restart (rebind MoveUp from W to UpArrow works after reload)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-012
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Corrupted PlayerPrefs JSON loads silently with default bindings, no exception"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-013
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Directed-aim device disconnect clears held state without calling UseSkill"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-014
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Skill slot 5 (out of range) makes no call to UseSkill"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-015
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Directed-aim hold interrupted by forward-aim press: forward skill fires normally"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-016
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "GState→Menu while holding W: Move not called during Menu, clean reacquisition on return"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-017
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "Single InputRouter owns one InputActionAsset with three action maps (Gameplay/Menu/Camp)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-input-018
+    system: input
+    gdd: design/gdd/input-system.md
+    requirement: "GState-driven map switching via GameStateChanged subscription"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Object Pooling (objpool)
+  # design/gdd/object-pooling.md
+  # ==========================================================================
+  - id: TR-objpool-001
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "PoolProfile prefabs have specified pre-warm count available (inactive) on scene load"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-002
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "PoolManager.Get() returns deactivated instance with OnSpawned() invoked"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-003
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "PoolManager.Return() deactivates instance and returns to pool"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-004
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "Pool exhausted: Get() batch-grows by GrowIncrement and logs warning"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-005
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "Externally destroyed pooled object: pool prunes null silently on next Get()"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-006
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "ClearAll() destroys all pooled objects, invokes OnDespawned() on active instances"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-007
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "New prefab passed to Get() without prior registration creates pool on demand and logs warning"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-008
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "EnsureCapacity() grows pool to requested count without exceeding MaxSize"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-009
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "EnsureCapacity() below active count logs warning, does not reduce capacity"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-010
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "IL2CPP build: all ObjectPool<T> concrete types resolve without MissingMethodException (AOT helper)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-011
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "PoolManager wraps UnityEngine.Pool.ObjectPool<T> (no custom pool class)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-012
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "PoolManager is a VContainer service registered in TinyRiftScope as cross-scene singleton"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-013
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "Pooled objects implement IPoolable with OnSpawned()/OnDespawned() lifecycle callbacks"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-014
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "Pooled objects parent under _PoolRoot/[PoolName] in scene hierarchy"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-objpool-015
+    system: objpool
+    gdd: design/gdd/object-pooling.md
+    requirement: "Scene transition calls PoolManager.ClearAll() explicitly (pools are app-scoped)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Save/Profile Persistence (saveprofile)
+  # design/gdd/save-profile-persistence.md
+  # ==========================================================================
+  - id: TR-saveprofile-001
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "PersistStateAsync() writes persistent.json with correct gold and playerId"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-002
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Defeat autosave adds run gold to persistent.json, deletes runstate.json"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-003
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Victory autosave adds run gold, updates zoneCompletions, deletes runstate.json"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-004
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Version migration: old saveVersion upgraded via registered migration function, file rewritten"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-005
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Newer saveVersion rejected with warning, original file preserved"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-006
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Corrupt JSON: caught exception, defaults for corrupt fields, preserved original file"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-007
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "IOException (disk full): original persistent.json unchanged, error logged"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-008
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Connected sync: server mock stores sent payload, client receives response"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-009
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Disconnected sync: .synclog entry created with unsent data"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-010
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Synclog replay on reconnection: entries replayed, .synclog cleared"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-011
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Missing skill in runstate: skip null entry, log warning"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-012
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Fresh first launch: persistent.json and runstate.json created with defaults"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-013
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Scalar currency conflict: newer lastModified wins, server validates timestamps"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-014
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "List union-merge: unlocked lists merged with no duplicates"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-015
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Server quarantine: overwrite local with authoritative value, no retry, no reward toast"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-016
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Reward notification appearance: non-blocking toast with earned amount"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-017
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Concurrent persist coalescing: same-frame calls produce exactly one disk write (latest wins)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-018
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Rapid persist calls debounced: 60 calls within one frame produce exactly one disk write"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-019
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Migration failure: restore original file from backup, log error"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-020
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Partial corruption: corrupt field reset to default, healthy fields preserved, runstate loaded normally"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-021
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Orphan runstate recovery: credit delta to persistent.json, delete runstate.json (with idempotent check)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-022
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Network disconnect mid-sync: local save preserved, .synclog entry created"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-023
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Concurrent read during write: read returns pre-write state until semaphore released"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-024
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "MissingMemberHandling.Ignore: unknown fields silently skipped, known fields deserialize correctly"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-025
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Synclog compaction: multiple entries compacted to latest-state payload per file path"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-026
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Pre-save validation: negative gold or out-of-range settings values rejected with logged error"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-027
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Atomic write pattern (temp file → rename) for persistent.json cross-field consistency"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-028
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "Five autosave triggers: HeroCamp entry, in-camp spend, Defeat, Victory, runstate creation"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-029
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "JSON serialization via Newtonsoft.Json; all fields annotated with [JsonProperty] for IL2CPP"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-saveprofile-030
+    system: saveprofile
+    gdd: design/gdd/save-profile-persistence.md
+    requirement: "link.xml preserves all save schema types (PersistentSaveData, ZoneCompletionEntry, RunStateSaveData, SavedSkillEntry) under IL2CPP"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Scene Manager (scene)
+  # design/gdd/scene-manager.md
+  # ==========================================================================
+  - id: TR-scene-001
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "GState→HeroCamp loads mapped scene path with allowSceneActivation=false, publishes SceneLoadStarted"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-002
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "GState→InRun with zoneId loads correct zone scene, publishes SceneLoadStarted"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-003
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "New scene request during active loading is buffered (not rejected)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-004
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "Already-active scene transitions are no-ops (no SceneLoadStarted, no LoadSceneAsync)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-005
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "Null/empty ZoneId defaults to SceneRegistry.GetDefaultZoneScene() with warning"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-006
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "Missing scene in BuildSettings publishes SceneLoadFailed, increments failure counter, transitions to Menu"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-007
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "5 consecutive SceneLoadFailed in a session halts all loading with fatal log"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-008
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "AsyncOperation at progress 0.9 publishes SceneReadyToActivate with allowSceneActivation=false"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-009
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "ActivateScene() sets allowSceneActivation=true, activates within one frame"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-010
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "10-second timeout without ActivateScene() auto-activates with warning"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-011
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "Load completes with allowSceneActivation=true publishes SceneLoadComplete"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-012
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "GState transitions to Loading/Paused/Defeat/Victory are silent no-ops for Scene Manager"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-013
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "Built-in fade fallback (fade to black before activation, fade in after SceneLoadComplete)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-014
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "Null SceneRegistrySO: fatal error logged, no GameStateChanged subscription (safe disabled state)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-scene-015
+    system: scene
+    gdd: design/gdd/scene-manager.md
+    requirement: "PreloadZoneAsync cancelled by incoming GStateChange for different scene"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Network Manager (network)
+  # design/gdd/network-manager.md
+  # ==========================================================================
+  - id: TR-network-001
+    system: network
+    gdd: design/gdd/network-manager.md
+    requirement: "Online mode ConnectAsync() sets State=Connected, IsConnected=true on success"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-network-002
+    system: network
+    gdd: design/gdd/network-manager.md
+    requirement: "Offline mode ConnectAsync() returns Connected immediately with no network I/O"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-network-003
+    system: network
+    gdd: design/gdd/network-manager.md
+    requirement: "Unexpected disconnect sets State=Reconnecting, exponential backoff begins"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-network-004
+    system: network
+    gdd: design/gdd/network-manager.md
+    requirement: "Reconnect success resets backoff to 1s, sets State=Connected"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-network-005
+    system: network
+    gdd: design/gdd/network-manager.md
+    requirement: "5 failed reconnect attempts: State=Disconnected, critical event emitted"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-network-006
+    system: network
+    gdd: design/gdd/network-manager.md
+    requirement: "InRun connection drop: no exceptions, queued operations stored locally"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-network-007
+    system: network
+    gdd: design/gdd/network-manager.md
+    requirement: "Application.quitting during Reconnecting cancels backoff timer cleanly"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-network-008
+    system: network
+    gdd: design/gdd/network-manager.md
+    requirement: "Wraps IBackendService with connection state machine (Disconnected/Connecting/Connected/Reconnecting)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Account/Profile System (account)
+  # design/gdd/account-profile-system.md
+  # ==========================================================================
+  - id: TR-account-001
+    system: account
+    gdd: design/gdd/account-profile-system.md
+    requirement: "Login/registration via WebSocketSQL backend"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-account-002
+    system: account
+    gdd: design/gdd/account-profile-system.md
+    requirement: "Profile fetch/update via WebSocketSQL backend"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-account-003
+    system: account
+    gdd: design/gdd/account-profile-system.md
+    requirement: "Profile data read after login populates initial game state"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Zone Definition System (zonedef)
+  # design/gdd/zone-definition-system.md
+  # ==========================================================================
+  - id: TR-zonedef-001
+    system: zonedef
+    gdd: design/gdd/zone-definition-system.md
+    requirement: "ScriptableObject-based wave composition configs per zone"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-zonedef-002
+    system: zonedef
+    gdd: design/gdd/zone-definition-system.md
+    requirement: "Enemy spawn tables per zone"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-zonedef-003
+    system: zonedef
+    gdd: design/gdd/zone-definition-system.md
+    requirement: "Boss data per zone"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # World State (worldstate)
+  # design/gdd/world-state.md
+  # ==========================================================================
+  - id: TR-worldstate-001
+    system: worldstate
+    gdd: design/gdd/world-state.md
+    requirement: "Zone unlock/restore state persisted across sessions"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-worldstate-002
+    system: worldstate
+    gdd: design/gdd/world-state.md
+    requirement: "On zone completion, publishes restoration event to Event Bus"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Audio System (audio)
+  # design/gdd/audio-system.md
+  # ==========================================================================
+  - id: TR-audio-001
+    system: audio
+    gdd: design/gdd/audio-system.md
+    requirement: "SFX playback triggered via Event Bus"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-audio-002
+    system: audio
+    gdd: design/gdd/audio-system.md
+    requirement: "Music crossfade between zones and camp"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-audio-003
+    system: audio
+    gdd: design/gdd/audio-system.md
+    requirement: "Mixer bus management (master/sfx/music)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # VFX System (vfx)
+  # design/gdd/vfx-system.md
+  # ==========================================================================
+  - id: TR-vfx-001
+    system: vfx
+    gdd: design/gdd/vfx-system.md
+    requirement: "Particle spawn/manage via Event Bus consumption"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-vfx-002
+    system: vfx
+    gdd: design/gdd/vfx-system.md
+    requirement: "Elemental VFX library matching art bible Section 8"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Currency System (currency)
+  # design/gdd/currency-system.md
+  # ==========================================================================
+  - id: TR-currency-001
+    system: currency
+    gdd: design/gdd/currency-system.md
+    requirement: "Earn/spend with server-authoritative validation hooks"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-currency-002
+    system: currency
+    gdd: design/gdd/currency-system.md
+    requirement: "Consumes currency events from Event Bus"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-currency-003
+    system: currency
+    gdd: design/gdd/currency-system.md
+    requirement: "GPM=300, PPH=2, PDR=1.2, startingGold=0, startingPremium=0 constants defined"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Lore Fragment System (lore)
+  # design/gdd/lore-fragment-system.md
+  # ==========================================================================
+  - id: TR-lore-001
+    system: lore
+    gdd: design/gdd/lore-fragment-system.md
+    requirement: "Fragment data storage and retrieval"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-lore-002
+    system: lore
+    gdd: design/gdd/lore-fragment-system.md
+    requirement: "Auto-collect on elite/boss kill"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-lore-003
+    system: lore
+    gdd: design/gdd/lore-fragment-system.md
+    requirement: "Codex data provider for fragment display"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Status Effect System (statusfx)
+  # design/gdd/status-effect-system.md
+  # ==========================================================================
+  - id: TR-statusfx-001
+    system: statusfx
+    gdd: design/gdd/status-effect-system.md
+    requirement: "Per-entity status tracking (frozen/burned/stunned)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-statusfx-002
+    system: statusfx
+    gdd: design/gdd/status-effect-system.md
+    requirement: "Tick countdowns and stack management"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-statusfx-003
+    system: statusfx
+    gdd: design/gdd/status-effect-system.md
+    requirement: "API: ApplyStatus(StatusType, EntityId) and GetActiveStatuses(EntityId)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Damage & Health System (dmghealth)
+  # design/gdd/damage-health-system.md
+  # ==========================================================================
+  - id: TR-dmghealth-001
+    system: dmghealth
+    gdd: design/gdd/damage-health-system.md
+    requirement: "HP management, damage calculation, invincibility frames, death detection"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-dmghealth-002
+    system: dmghealth
+    gdd: design/gdd/damage-health-system.md
+    requirement: "Applies status effects via StatusFX.ApplyStatus()"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-dmghealth-003
+    system: dmghealth
+    gdd: design/gdd/damage-health-system.md
+    requirement: "Publishes kill/death events to Event Bus"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Orbit Combat System (orbit)
+  # design/gdd/orbit-combat-system.md
+  # ==========================================================================
+  - id: TR-orbit-001
+    system: orbit
+    gdd: design/gdd/orbit-combat-system.md
+    requirement: "Passive orbital auto-attack with targeting priority"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-orbit-002
+    system: orbit
+    gdd: design/gdd/orbit-combat-system.md
+    requirement: "Orbit rotation speed and projectile spawning"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-orbit-003
+    system: orbit
+    gdd: design/gdd/orbit-combat-system.md
+    requirement: "Uses ObjectPool for projectile pooling"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Burst Skill System (burst)
+  # design/gdd/burst-skill-system.md
+  # ==========================================================================
+  - id: TR-burst-001
+    system: burst
+    gdd: design/gdd/burst-skill-system.md
+    requirement: "Aimed skill execution with cooldown tracking"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-burst-002
+    system: burst
+    gdd: design/gdd/burst-skill-system.md
+    requirement: "Targeting (mouse/gamepad aim direction)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-burst-003
+    system: burst
+    gdd: design/gdd/burst-skill-system.md
+    requirement: "Uses ObjectPool for skill-specific VFX"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Level-Up System (levelup)
+  # design/gdd/level-up-system.md
+  # ==========================================================================
+  - id: TR-levelup-001
+    system: levelup
+    gdd: design/gdd/level-up-system.md
+    requirement: "XP accumulation via kill events from Event Bus"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-levelup-002
+    system: levelup
+    gdd: design/gdd/level-up-system.md
+    requirement: "Level thresholds and draft trigger on level-up"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Rune Draft System (runedraft)
+  # design/gdd/rune-draft-system.md
+  # ==========================================================================
+  - id: TR-runedraft-001
+    system: runedraft
+    gdd: design/gdd/rune-draft-system.md
+    requirement: "3-card draft generation with rarity weighting"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-runedraft-002
+    system: runedraft
+    gdd: design/gdd/rune-draft-system.md
+    requirement: "Synergy hints (future, deferred to Alpha)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-runedraft-003
+    system: runedraft
+    gdd: design/gdd/rune-draft-system.md
+    requirement: "Selection handler for chosen rune"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Enemy AI (enemyai)
+  # design/gdd/enemy-ai-system.md
+  # ==========================================================================
+  - id: TR-enemyai-001
+    system: enemyai
+    gdd: design/gdd/enemy-ai-system.md
+    requirement: "Behavior patterns per enemy type (chase, elite, boss)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-enemyai-002
+    system: enemyai
+    gdd: design/gdd/enemy-ai-system.md
+    requirement: "Aggro range and detection"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-enemyai-003
+    system: enemyai
+    gdd: design/gdd/enemy-ai-system.md
+    requirement: "EnemyDefinition ScriptableObject with HP, movespeed, damage, XP value, behavior type, attack pattern, element, rift origin, elemental weakness/resistance tables"
+    created: 2026-06-05
+    revised: ""
+    status: active
+
+  - id: TR-enemyai-004
+    system: enemyai
+    gdd: design/gdd/enemy-ai-system.md
+    requirement: "Elemental affinity system (fire/ice/lightning with weakness/resistance multipliers)"
+    created: 2026-06-05
+    revised: ""
+    status: active
+
+  - id: TR-enemyai-005
+    system: enemyai
+    gdd: design/gdd/enemy-ai-system.md
+    requirement: "Rift origin field in EnemyDefinition with zone assignment"
+    created: 2026-06-05
+    revised: ""
+    status: active
+
+  - id: TR-enemyai-006
+    system: enemyai
+    gdd: design/gdd/enemy-ai-system.md
+    requirement: "State machine architecture (Spawn → Idle → Chase → Attack → Flee → Death)"
+    created: 2026-06-05
+    revised: ""
+    status: active
+
+  - id: TR-enemyai-007
+    system: enemyai
+    gdd: design/gdd/enemy-ai-system.md
+    requirement: "Behavior types (MeleeCharger, RangedCaster, SuicideBomber, Orbiter, Turret)"
+    created: 2026-06-05
+    revised: ""
+    status: active
+
+  - id: TR-enemyai-008
+    system: enemyai
+    gdd: design/gdd/enemy-ai-system.md
+    requirement: "Attack resolution (melee HitEvent, ranged projectile, suicide EntityDiedEvent)"
+    created: 2026-06-05
+    revised: ""
+    status: active
+
+  - id: TR-enemyai-009
+    system: enemyai
+    gdd: design/gdd/enemy-ai-system.md
+    requirement: "Attack cooldown tracked via ITimerService"
+    created: 2026-06-05
+    revised: ""
+    status: active
+
+  - id: TR-enemyai-010
+    system: enemyai
+    gdd: design/gdd/enemy-ai-system.md
+    requirement: "Wave integration (enemies activated by Wave Spawning from pool)"
+    created: 2026-06-05
+    revised: ""
+    status: active
+
+  - id: TR-enemyai-011
+    system: enemyai
+    gdd: design/gdd/enemy-ai-system.md
+    requirement: "GameStateChangedEvent handling for cleanup and boss arena clearing"
+    created: 2026-06-05
+    revised: ""
+    status: active
+
+  - id: TR-enemyai-012
+    system: enemyai
+    gdd: design/gdd/enemy-ai-system.md
+    requirement: "Run-time scaling formulas for aggro range, attack cooldown, and damage"
+    created: 2026-06-05
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Wave Spawning System (wavespawn)
+  # design/gdd/wave-spawning-system.md
+  # ==========================================================================
+  - id: TR-wavespawn-001
+    system: wavespawn
+    gdd: design/gdd/wave-spawning-system.md
+    requirement: "Wave lifecycle (start, escalation, boss trigger)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-wavespawn-002
+    system: wavespawn
+    gdd: design/gdd/wave-spawning-system.md
+    requirement: "Spawn positions and composition from ZoneDef config"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-wavespawn-003
+    system: wavespawn
+    gdd: design/gdd/wave-spawning-system.md
+    requirement: "Uses ObjectPool for enemy pooling"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Boss Encounter System (boss)
+  # design/gdd/boss-encounter-system.md
+  # ==========================================================================
+  - id: TR-boss-001
+    system: boss
+    gdd: design/gdd/boss-encounter-system.md
+    requirement: "Phase transitions with telegraphs"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-boss-002
+    system: boss
+    gdd: design/gdd/boss-encounter-system.md
+    requirement: "Arena gating and phase-change lighting"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Screen Shake & Feedback (screenshake)
+  # design/gdd/screen-shake-system.md
+  # ==========================================================================
+  - id: TR-screenshake-001
+    system: screenshake
+    gdd: design/gdd/screen-shake-system.md
+    requirement: "Shake profiles with configurable intensity and duration"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-screenshake-002
+    system: screenshake
+    gdd: design/gdd/screen-shake-system.md
+    requirement: "Damage vignette and low-health warning"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-screenshake-003
+    system: screenshake
+    gdd: design/gdd/screen-shake-system.md
+    requirement: "Hit-stop overlay; consumes damage/kill events from Event Bus"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Hero Camp Progression (camp)
+  # design/gdd/hero-camp-progression.md
+  # ==========================================================================
+  - id: TR-camp-001
+    system: camp
+    gdd: design/gdd/hero-camp-progression.md
+    requirement: "Permanent upgrade tree with currency sinks"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-camp-002
+    system: camp
+    gdd: design/gdd/hero-camp-progression.md
+    requirement: "Hero/zone unlock gates"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Build State (buildstate)
+  # design/gdd/build-state.md
+  # ==========================================================================
+  - id: TR-buildstate-001
+    system: buildstate
+    gdd: design/gdd/build-state.md
+    requirement: "Per-run skill loadout tracking"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-buildstate-002
+    system: buildstate
+    gdd: design/gdd/build-state.md
+    requirement: "Modifiers and synergy flags"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-buildstate-003
+    system: buildstate
+    gdd: design/gdd/build-state.md
+    requirement: "Serialized by Save/Profile on checkpoint/run-end (C5 contract)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # HUD (hud)
+  # design/gdd/hud.md
+  # ==========================================================================
+  - id: TR-hud-001
+    system: hud
+    gdd: design/gdd/hud.md
+    requirement: "Health bar, skill slots with cooldown sweep, currency counters"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-hud-002
+    system: hud
+    gdd: design/gdd/hud.md
+    requirement: "Kill/combo counter, boss health bar"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-hud-003
+    system: hud
+    gdd: design/gdd/hud.md
+    requirement: "Show/hide per GState"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Draft Panel UI (draftui)
+  # design/gdd/draft-panel-ui.md
+  # ==========================================================================
+  - id: TR-draftui-001
+    system: draftui
+    gdd: design/gdd/draft-panel-ui.md
+    requirement: "3-card parchment panel with hover glow"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-draftui-002
+    system: draftui
+    gdd: design/gdd/draft-panel-ui.md
+    requirement: "Card pick-up animation per art bible Section 8.5.3"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-draftui-003
+    system: draftui
+    gdd: design/gdd/draft-panel-ui.md
+    requirement: "Shield-shaped card layout per art bible Section 3.3"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Camp Menu UI (campui)
+  # design/gdd/camp-menu-ui.md
+  # ==========================================================================
+  - id: TR-campui-001
+    system: campui
+    gdd: design/gdd/camp-menu-ui.md
+    requirement: "Start run button, lore codex access, currency display"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-campui-002
+    system: campui
+    gdd: design/gdd/camp-menu-ui.md
+    requirement: "Upgrade panel (future tier)"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Codex UI (codexui)
+  # design/gdd/codex-ui.md
+  # ==========================================================================
+  - id: TR-codexui-001
+    system: codexui
+    gdd: design/gdd/codex-ui.md
+    requirement: "Fragment reading view with runic glyph to readable text toggle"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Skill Presentation Adapter (skillpresent)
+  # design/gdd/skill-presentation-adapter.md
+  # ==========================================================================
+  - id: TR-skillpresent-001
+    system: skillpresent
+    gdd: design/gdd/skill-presentation-adapter.md
+    requirement: "Maps skill data to animation timing, VFX sequence, hit-stop, audio feedback"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-skillpresent-002
+    system: skillpresent
+    gdd: design/gdd/skill-presentation-adapter.md
+    requirement: "Bridge pattern — observes template events, never modifies vendor code"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Loading/Transition System (loading)
+  # design/gdd/loading-transition-system.md
+  # ==========================================================================
+  - id: TR-loading-001
+    system: loading
+    gdd: design/gdd/loading-transition-system.md
+    requirement: "Zone entry title card per art bible Section 6.3"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-loading-002
+    system: loading
+    gdd: design/gdd/loading-transition-system.md
+    requirement: "Ink-stamp/parchment-tear/rune-ignite transition animations"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  # ==========================================================================
+  # Run Completion Flow (runcomplete)
+  # design/gdd/run-completion-flow.md
+  # ==========================================================================
+  - id: TR-runcomplete-001
+    system: runcomplete
+    gdd: design/gdd/run-completion-flow.md
+    requirement: "End-of-run summary screen with reward calculation"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-runcomplete-002
+    system: runcomplete
+    gdd: design/gdd/run-completion-flow.md
+    requirement: "Validation handoff to server economy"
+    created: 2026-06-02
+    revised: ""
+    status: active
+
+  - id: TR-runcomplete-003
+    system: runcomplete
+    gdd: design/gdd/run-completion-flow.md
+    requirement: "Camp return flow on completion"
+    created: 2026-06-02
+    revised: ""
+    status: active
