@@ -1,17 +1,17 @@
 # Architecture Review Report — Enemy AI System (Single-GDD Mode)
 
-**Date**: 2026-06-05  
-**Engine**: Unity 6000.3.11f1 (Unity 6 Update 3)  
-**GDDs Reviewed**: 1 (Enemy AI System)  
+**Date**: 2026-06-05
+**Engine**: Unity 6000.3.11f1 (Unity 6 Update 3)
+**GDDs Reviewed**: 1 (Enemy AI System)
 **ADRs Reviewed**: 6 (Foundation/Core ADRs)
 
 ---
 
 ### Traceability Summary
 
-**Total requirements**: 12  
-✅ **Covered**: 12 (all Enemy AI requirements now registered in TR registry)  
-⚠️ **Partial**: 0  
+**Total requirements**: 12
+✅ **Covered**: 12 (all Enemy AI requirements now registered in TR registry)
+⚠️ **Partial**: 0
 ❌ **Gaps**: 0
 
 ### Coverage Gaps
